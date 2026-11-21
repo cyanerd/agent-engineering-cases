@@ -13,6 +13,10 @@ export interface ModelSpec {
   key: string;
   provider: Provider;
   model: string;
+  /** Name recorded in results; defaults to model. */
+  label?: string;
+  /** Qwen3 soft switch: answer without the long reasoning phase (fast mode of a local model). */
+  noThink?: boolean;
   samples: number;
   concurrency: number;
 }
@@ -33,6 +37,7 @@ export interface AnswerRow {
 
 export const MODELS: Record<string, ModelSpec> = {
   qwen: { key: 'qwen', provider: 'ollama', model: 'qwen3:8b', samples: 3, concurrency: 4 },
+  'qwen-fast': { key: 'qwen-fast', provider: 'ollama', model: 'qwen3:8b', label: 'qwen3:8b-nothink', noThink: true, samples: 3, concurrency: 4 },
   flash: { key: 'flash', provider: 'opencode', model: 'deepseek-v4.1-flash', samples: 1, concurrency: 2 },
   pro: { key: 'pro', provider: 'opencode', model: 'deepseek-v4-pro', samples: 1, concurrency: 2 },
 };
@@ -58,10 +63,10 @@ export async function answerTasks(tasks: Task[], models: ModelSpec[], llm: { cha
   for (const m of models) {
     const jobs = tasks.flatMap((t) => Array.from({ length: m.samples }, (_, sample) => ({ t, sample })));
     rows.push(...(await pool(jobs, m.concurrency, async ({ t, sample }): Promise<AnswerRow> => {
-      const base = { taskId: t.id, type: t.type, split: t.split, model: m.model, sample };
+      const base = { taskId: t.id, type: t.type, split: t.split, model: m.label ?? m.model, sample };
       try {
         const r = await llm.chat({
-          provider: m.provider, model: m.model, messages: [{ role: 'user', content: t.prompt }],
+          provider: m.provider, model: m.model, messages: [...(m.noThink ? [{ role: 'system' as const, content: '/no_think' }] : []), { role: 'user' as const, content: t.prompt }],
           temperature: sample === 0 ? 0 : 0.7, sample,
           ...(t.type === 'extract' ? { responseFormat: { type: 'json_object' as const } } : {}),
         });
@@ -88,7 +93,7 @@ async function main() {
   for (const spec of specs) {
     const started = Date.now();
     const fresh = await answerTasks(tasks, [spec], llm);
-    const kept = existing.filter((r) => r.model !== spec.model);
+    const kept = existing.filter((r) => r.model !== (spec.label ?? spec.model));
     existing.length = 0;
     existing.push(...kept, ...fresh);
     writeFileSync(out, `${sortRows(existing).map((r) => JSON.stringify(r)).join('\n')}\n`);

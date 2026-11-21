@@ -21,6 +21,18 @@ importers:
         specifier: ^3.2.0
         version: 3.2.7(@types/node@24.19.2)(tsx@4.23.15)
 
+  a3-router:
+    dependencies:
+      '@aec/llm':
+        specifier: workspace:*
+        version: link:../packages/llm
+
+  b2-mail-injection:
+    dependencies:
+      '@aec/llm':
+        specifier: workspace:*
+        version: link:../packages/llm
+
   packages/llm: {}
 
 packages:

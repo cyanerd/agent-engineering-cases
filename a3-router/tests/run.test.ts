@@ -46,4 +46,12 @@ describe('answerTasks', () => {
     const b = await answerTasks([...tasks].reverse(), [pricey, cheap], llm());
     expect(b.map((r) => `${r.taskId}/${r.model}/${r.sample}`)).toEqual(a.map((r) => `${r.taskId}/${r.model}/${r.sample}`));
   });
+
+  it('a fast variant of the cheap model asks it not to think and is recorded under its own label', async () => {
+    const l = llm();
+    const fast: ModelSpec = { key: 'fast', provider: 'ollama', model: 'stub-small', label: 'stub-small-nothink', noThink: true, samples: 1, concurrency: 1 };
+    const rows = await answerTasks([tasks[0]!], [fast], l);
+    expect(rows[0]!.model).toBe('stub-small-nothink');
+    expect(l.reqs[0]!.messages[0]).toEqual({ role: 'system', content: '/no_think' });
+  });
 });

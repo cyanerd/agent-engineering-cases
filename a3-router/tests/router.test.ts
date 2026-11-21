@@ -57,4 +57,8 @@ describe('policies', () => {
     const bad = [row(t3, CHEAP, 0, '4', true), row(t3, CHEAP, 1, '4', true), row(t3, CHEAP, 2, '4', true), { ...row(t3, BIG, 0, '', false), error: 'LLM HTTP 500' }];
     expect(buildTable([tm, te, t3], [...rows, ...bad], CHEAP, BIG)).toHaveLength(2);
   });
+
+  it('latency of all-expensive is the expensive call only (no NaN)', () => {
+    expect(Number.isFinite(evaluate(allExpensive, table, 0).p50LatencyMs)).toBe(true);
+  });
 });

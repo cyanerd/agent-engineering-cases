@@ -95,7 +95,7 @@ export function evaluate(policy: Policy, table: Entry[], samplesUsed = 1): Outco
   const correct = table.map((e, i) => (routes[i] === 'cheap' ? !!e.cheap[0]!.correct : !!e.expensive.correct));
   const cost = table.reduce((s, e, i) => s + (routes[i] === 'expensive' ? e.expensive.costUsd : 0), 0);
   const lat = table
-    .map((e, i) => Math.max(...e.cheap.slice(0, samplesUsed).map((r) => r.latencyMs)) * (samplesUsed > 0 ? 1 : 0) + (routes[i] === 'expensive' ? e.expensive.latencyMs : 0))
+    .map((e, i) => (samplesUsed > 0 ? Math.max(...e.cheap.slice(0, samplesUsed).map((r) => r.latencyMs)) : 0) + (routes[i] === 'expensive' ? e.expensive.latencyMs : 0))
     .sort((a, b) => a - b);
   return {
     correct,
