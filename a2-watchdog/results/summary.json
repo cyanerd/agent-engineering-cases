@@ -1,0 +1,191 @@
+{
+  "rows": [
+    {
+      "mechanism": "База: красный на любой сбой",
+      "label": "-",
+      "recall": 1,
+      "recallByKind": {
+        "stable": "70/70",
+        "intermittent": "28/28",
+        "disguised": "16/16"
+      },
+      "medianHours": 0,
+      "falsePerWeekMed": 31,
+      "falsePerWeekP10": 24.5,
+      "falsePerWeekP90": 35.5,
+      "alertsPerWeek": 44.5,
+      "extraRunsPerWeek": 0,
+      "testCost": 29.35
+    },
+    {
+      "mechanism": "1. Перепрогон + карантин",
+      "label": "k=2, без карантина",
+      "recall": 0.8421052631578947,
+      "recallByKind": {
+        "stable": "70/70",
+        "intermittent": "10/28",
+        "disguised": "16/16"
+      },
+      "medianHours": 0,
+      "falsePerWeekMed": 1,
+      "falsePerWeekP10": 0.5,
+      "falsePerWeekP90": 2,
+      "alertsPerWeek": 11,
+      "extraRunsPerWeek": 60.75,
+      "testCost": 5.575
+    },
+    {
+      "mechanism": "2. Статистика по окну (CUSUM)",
+      "label": "порог 3",
+      "recall": 0.956140350877193,
+      "recallByKind": {
+        "stable": "69/70",
+        "intermittent": "24/28",
+        "disguised": "16/16"
+      },
+      "medianHours": 8,
+      "falsePerWeekMed": 2.5,
+      "falsePerWeekP10": 1.5,
+      "falsePerWeekP90": 5.5,
+      "alertsPerWeek": 6.5,
+      "extraRunsPerWeek": 0,
+      "testCost": 3.95
+    },
+    {
+      "mechanism": "3. Отпечатки сбоев",
+      "label": "новая сигнатура = сигнал",
+      "recall": 0.8508771929824561,
+      "recallByKind": {
+        "stable": "69/70",
+        "intermittent": "28/28",
+        "disguised": "0/16"
+      },
+      "medianHours": 0,
+      "falsePerWeekMed": 1.5,
+      "falsePerWeekP10": 0,
+      "falsePerWeekP90": 3.5,
+      "alertsPerWeek": 3.5,
+      "extraRunsPerWeek": 0,
+      "testCost": 5.55
+    },
+    {
+      "mechanism": "3 + 2. Отпечатки + статистика",
+      "label": "CUSUM порог 4",
+      "recall": 0.9736842105263158,
+      "recallByKind": {
+        "stable": "69/70",
+        "intermittent": "28/28",
+        "disguised": "14/16"
+      },
+      "medianHours": 0,
+      "falsePerWeekMed": 2,
+      "falsePerWeekP10": 1,
+      "falsePerWeekP90": 5,
+      "alertsPerWeek": 8,
+      "extraRunsPerWeek": 0,
+      "testCost": 3.15
+    }
+  ],
+  "grid": [
+    {
+      "mechanism": "База: красный на любой сбой",
+      "label": "-",
+      "trainCost": 29.25
+    },
+    {
+      "mechanism": "1. Перепрогон + карантин",
+      "label": "k=1, без карантина",
+      "trainCost": 6.875
+    },
+    {
+      "mechanism": "1. Перепрогон + карантин",
+      "label": "k=1, карантин при ≥10% мигания за неделю",
+      "trainCost": 7.3
+    },
+    {
+      "mechanism": "1. Перепрогон + карантин",
+      "label": "k=1, карантин при ≥20% мигания за неделю",
+      "trainCost": 6.5
+    },
+    {
+      "mechanism": "1. Перепрогон + карантин",
+      "label": "k=2, без карантина",
+      "trainCost": 5.35
+    },
+    {
+      "mechanism": "1. Перепрогон + карантин",
+      "label": "k=2, карантин при ≥10% мигания за неделю",
+      "trainCost": 9.45
+    },
+    {
+      "mechanism": "1. Перепрогон + карантин",
+      "label": "k=2, карантин при ≥20% мигания за неделю",
+      "trainCost": 6.4
+    },
+    {
+      "mechanism": "1. Перепрогон + карантин",
+      "label": "k=3, без карантина",
+      "trainCost": 6.05
+    },
+    {
+      "mechanism": "1. Перепрогон + карантин",
+      "label": "k=3, карантин при ≥10% мигания за неделю",
+      "trainCost": 11.425
+    },
+    {
+      "mechanism": "1. Перепрогон + карантин",
+      "label": "k=3, карантин при ≥20% мигания за неделю",
+      "trainCost": 7.5
+    },
+    {
+      "mechanism": "2. Статистика по окну (CUSUM)",
+      "label": "порог 1.5",
+      "trainCost": 10.475
+    },
+    {
+      "mechanism": "2. Статистика по окну (CUSUM)",
+      "label": "порог 2",
+      "trainCost": 7.025
+    },
+    {
+      "mechanism": "2. Статистика по окну (CUSUM)",
+      "label": "порог 2.5",
+      "trainCost": 5.3
+    },
+    {
+      "mechanism": "2. Статистика по окну (CUSUM)",
+      "label": "порог 3",
+      "trainCost": 4.575
+    },
+    {
+      "mechanism": "2. Статистика по окну (CUSUM)",
+      "label": "порог 4",
+      "trainCost": 7.875
+    },
+    {
+      "mechanism": "2. Статистика по окну (CUSUM)",
+      "label": "порог 5",
+      "trainCost": 12.075
+    },
+    {
+      "mechanism": "3. Отпечатки сбоев",
+      "label": "новая сигнатура = сигнал",
+      "trainCost": 12.3
+    },
+    {
+      "mechanism": "3 + 2. Отпечатки + статистика",
+      "label": "CUSUM порог 2",
+      "trainCost": 12.075
+    },
+    {
+      "mechanism": "3 + 2. Отпечатки + статистика",
+      "label": "CUSUM порог 3",
+      "trainCost": 9.475
+    },
+    {
+      "mechanism": "3 + 2. Отпечатки + статистика",
+      "label": "CUSUM порог 4",
+      "trainCost": 9.175
+    }
+  ]
+}
