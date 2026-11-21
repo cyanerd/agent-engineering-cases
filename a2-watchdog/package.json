@@ -1,0 +1,13 @@
+{
+  "name": "a2-watchdog",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run tests",
+    "compare": "tsx src/compare.ts",
+    "live": "playwright test -c live/playwright.config.ts",
+    "case": "tsx src/compare.ts"
+  }
+}
