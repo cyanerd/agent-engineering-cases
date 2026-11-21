@@ -10,9 +10,12 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@aparajita/capacitor-biometric-auth": "10.0.0",
+    "@aparajita/capacitor-secure-storage": "8.0.1",
     "@capacitor/android": "^8.6.0",
     "@capacitor/core": "^8.6.0",
     "@capacitor/ios": "^8.6.0",
+    "@capacitor/privacy-screen": "2.0.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },

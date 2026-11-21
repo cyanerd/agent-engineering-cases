@@ -21,3 +21,7 @@ h2 { font-size: 16px; margin: 22px 0 8px; }
 .ask { display: flex; gap: 8px; margin-top: 12px; }
 .ask input { flex: 1; padding: 10px; border-radius: 10px; border: 1px solid #cfd7df; font-size: 15px; }
 .ask button { padding: 10px 14px; border: 0; border-radius: 10px; background: #0f4c81; color: #fff; }
+.checks { background: #fff; border-radius: 14px; padding: 4px 16px 12px; margin-bottom: 16px; }
+.check-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+.check-buttons button { padding: 8px 12px; border: 1px solid #0f4c81; border-radius: 10px; background: #fff; color: #0f4c81; }
+.checks ul { padding-left: 18px; font-size: 13px; }

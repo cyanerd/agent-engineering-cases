@@ -1,13 +1,38 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { answer } from './assistant.ts';
 import { BALANCE, OPERATIONS } from './data.ts';
 import { formatMoney } from './money.ts';
+import { checkBiometry, checkSecureStorage, enablePrivacyScreen } from './native.ts';
 
 type Tab = 'account' | 'assistant';
+
+function DeviceChecks() {
+  const [lines, setLines] = useState<string[]>([]);
+  const run = (f: () => Promise<string>) => () => f().then((l) => setLines((x) => [...x, l]), (e: Error) => setLines((x) => [...x, `ошибка: ${e.message}`]));
+  // Test builds (VITE_SELFTEST=1) run every check at start: simulators cannot be tapped from a script.
+  useEffect(() => {
+    if (import.meta.env.VITE_SELFTEST !== '1') return;
+    (async () => {
+      for (const f of [checkSecureStorage, enablePrivacyScreen, checkBiometry]) await run(f)();
+    })();
+  }, []);
+  return (
+    <div className="checks">
+      <h2>Проверки устройства</h2>
+      <div className="check-buttons">
+        <button onClick={run(checkBiometry)}>Биометрия</button>
+        <button onClick={run(checkSecureStorage)}>Хранилище</button>
+        <button onClick={run(enablePrivacyScreen)}>Защита экрана</button>
+      </div>
+      <ul>{lines.map((l, i) => <li key={i}>{l}</li>)}</ul>
+    </div>
+  );
+}
 
 function Account() {
   return (
     <section>
+      <DeviceChecks />
       <div className="balance-card">
         <div className="muted">Основной счёт</div>
         <div className="balance">{formatMoney(BALANCE)}</div>
