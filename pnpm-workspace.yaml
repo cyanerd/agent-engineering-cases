@@ -1,0 +1,3 @@
+packages:
+  - "packages/*"
+  - "[abc][0-9]-*"
