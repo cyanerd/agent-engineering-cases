@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { createLlm } from '../src/client.ts';
 import type { ChatRequest } from '../src/types.ts';
 
-const KEY = 'oc_sk_test_SECRET_123456789';
+const KEY = 'test-key-not-a-secret-123456789';
 type Call = { url: string; init: RequestInit };
 
 function stubFetch(responses: Array<() => Response>) {
