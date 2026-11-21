@@ -1,0 +1,37 @@
+name: pr-guard
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited, labeled, unlabeled, auto_merge_enabled, auto_merge_disabled]
+    paths: ['c1-agent-pr/**']
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm i --frozen-lockfile
+      - name: Contract tests of the SMS sender (independent of the implementation)
+        run: pnpm --filter c1-agent-pr run contract
+  pr-guard:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm i --frozen-lockfile
+      - name: Changed files
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api --paginate "repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files" | jq -s 'add' > /tmp/files.json
+      - name: Critical paths, auto-merge, size, scope
+        run: pnpm --filter c1-agent-pr exec tsx scripts/pr-guard.ts "$GITHUB_EVENT_PATH" /tmp/files.json
