@@ -1,21 +1,21 @@
 import { describe, expect, it } from 'vitest';
 import { prGuard, type PrInput } from '../scripts/pr-guard.ts';
 
-const base: PrInput = { files: [], labels: [], body: 'Scope: c1-agent-pr/src/notify/**', autoMerge: false };
+const base: PrInput = { files: [], labels: [], body: 'Scope: c1-agent-pr/docs/**', autoMerge: false };
 const f = (path: string, additions = 10, deletions = 0, previousPath?: string) => ({ path, additions, deletions, ...(previousPath ? { previousPath } : {}) });
 const checks = (i: PrInput) => prGuard(i).failures.map((x) => x.check).sort();
 
 describe('prGuard', () => {
   it('passes a small PR inside its declared scope that does not touch critical paths', () => {
-    expect(prGuard({ ...base, files: [f('c1-agent-pr/src/notify/email.ts')] })).toEqual({ ok: true, failures: [] });
+    expect(prGuard({ ...base, files: [f('c1-agent-pr/docs/notes.md')] })).toEqual({ ok: true, failures: [] });
   });
 
   it('a PR without a Scope line fails instead of passing', () => {
-    expect(checks({ ...base, body: 'some description', files: [f('c1-agent-pr/src/notify/email.ts')] })).toEqual(['scope']);
+    expect(checks({ ...base, body: 'some description', files: [f('c1-agent-pr/docs/notes.md')] })).toEqual(['scope']);
   });
 
   it('files outside the declared scope fail the scope check', () => {
-    expect(checks({ ...base, files: [f('c1-agent-pr/src/notify/email.ts'), f('b2-mail-injection/src/agent.ts')] })).toEqual(['scope']);
+    expect(checks({ ...base, files: [f('c1-agent-pr/docs/notes.md'), f('b2-mail-injection/src/agent.ts')] })).toEqual(['scope']);
   });
 
   it('touching the provider layer with automerge fails critical-path-no-automerge and needs review', () => {
@@ -40,5 +40,10 @@ describe('prGuard', () => {
     const big = { ...base, body: 'Scope: c1-agent-pr/** pnpm-lock.yaml', labels: ['critical-reviewed'], files: [f('c1-agent-pr/src/sender.ts', 300, 150), f('pnpm-lock.yaml', 5000, 3000)] };
     expect(checks(big)).toEqual(['size-limit']);
     expect(checks({ ...big, files: [f('c1-agent-pr/src/sender.ts', 200, 150), f('pnpm-lock.yaml', 5000, 3000)] })).toEqual([]);
+  });
+
+  it('code moved into a new directory of the SMS module is still critical (found on PR #3: src/gateway/**)', () => {
+    const i = { ...base, body: 'Scope: c1-agent-pr/**', labels: ['critical-reviewed'], files: [f('c1-agent-pr/src/gateway/dispatcher.ts', 150), f('c1-agent-pr/src/gateway/registry.ts', 80), f('c1-agent-pr/src/sender.ts', 25, 50), f('c1-agent-pr/src/gateway/retry.ts', 200)] };
+    expect(checks(i)).toEqual(['size-limit']);
   });
 });

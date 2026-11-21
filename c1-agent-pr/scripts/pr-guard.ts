@@ -26,7 +26,8 @@ export interface Failure {
   reason: string;
 }
 
-export const CRITICAL = ['c1-agent-pr/src/providers/**', 'c1-agent-pr/src/sender.ts', 'c1-agent-pr/src/types.ts'];
+/** The whole SMS module: path lists of single files are bypassed by moving code into a new directory. */
+export const CRITICAL = ['c1-agent-pr/src/**'];
 export const SIZE_LIMIT = 400;
 
 export function globToRegExp(glob: string): RegExp {
