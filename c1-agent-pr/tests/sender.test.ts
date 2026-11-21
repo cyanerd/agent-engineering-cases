@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createCodeSender } from '../src/sender.ts';
-import { FakeProvider } from './fake-provider.ts';
+import { FakeProvider } from '../contract/fake-provider.ts';
 
 describe('code sender', () => {
   it('sends the code through the first provider', async () => {
