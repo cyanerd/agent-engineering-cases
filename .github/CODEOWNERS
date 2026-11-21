@@ -1,0 +1,4 @@
+# The SMS module, its contract tests, the PR guard and CI are critical: changes need a review by their owner.
+# pr-guard checks this at the PR head commit; branch protection enforces it once the repository is public.
+/c1-agent-pr/ @cyanerd
+/.github/ @cyanerd
