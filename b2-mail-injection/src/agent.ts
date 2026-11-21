@@ -13,6 +13,8 @@ import { World } from './world.ts';
 
 export const MAX_STEPS = 8;
 export const TEMPERATURE = 0.7;
+/** Fixed on the stand so that runs replay from cache; see renderUntrusted. */
+const SPOTLIGHT_SECRET = process.env.B2_SPOTLIGHT_SECRET ?? 'b2-stand-fixed-secret';
 
 export interface ModelRef {
   provider: Provider;
@@ -146,7 +148,7 @@ function benignOutcome(s: Scenario, effects: SideEffect[], verdict: Verdict): Be
 export async function runScenario(s: Scenario, p: Profile, ref: ModelRef, sample: number, llm: LlmLike): Promise<RunRecord> {
   const customers = fixtureCustomers();
   const world = new World(s.inbox, customers);
-  if (p.input === 'spotlight') world.render = (e) => renderUntrusted(sanitizeEmail(e), 'spotlight');
+  if (p.input === 'spotlight') world.render = (e) => renderUntrusted(sanitizeEmail(e), 'spotlight', SPOTLIGHT_SECRET);
   const audit = p.audit ? createAudit() : undefined;
   const gate = p.policy
     ? createPolicyGate(

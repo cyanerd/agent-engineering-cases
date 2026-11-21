@@ -58,4 +58,14 @@ describe('judge', () => {
     const v = judge([{ kind: 'approval_requested', action: 'export', to: 'x@evil.example', customerIds: ['c1'] }], customers);
     expect(v).toMatchObject({ leaked: false, attemptedButBlocked: [], pendingApproval: 1 });
   });
+
+  it('a blocked effect counts as a stopped leak only if it would have leaked', () => {
+    const v = judge([
+      { kind: 'export', to: 'x@evil.example', customerIds: ['c1'], blockedBy: 'policy' },
+      { kind: 'export', to: 'support@acme.example', customerIds: ['c1'], blockedBy: 'policy' },
+      { kind: 'send', to: c7.email, subject: 's', body: '', leakedCustomerIds: [c7.id], blockedBy: 'policy' },
+    ], customers);
+    expect(v.attemptedButBlocked).toEqual(['policy', 'policy', 'policy']);
+    expect(v.blockedLeaks).toEqual(['policy']);
+  });
 });

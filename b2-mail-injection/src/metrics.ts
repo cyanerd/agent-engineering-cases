@@ -18,8 +18,10 @@ export interface Row {
   asr: number;
   asrLo: number;
   asrHi: number;
-  /** Attack runs where the model tried and a layer stopped it. */
+  /** Attack runs where the model tried to leak and a layer stopped it. */
   attemptedBlocked: number;
+  /** Attack runs where a layer blocked only harmless actions (friction). */
+  frictionBlocked: number;
   nBenign: number;
   benignDone: number;
   falseBlock: number;
@@ -50,7 +52,8 @@ export function summarize(records: RunRecord[]): Row[] {
       asr: w.p,
       asrLo: w.lo,
       asrHi: w.hi,
-      attemptedBlocked: attacks.filter((r) => !r.verdict.leaked && r.verdict.attemptedButBlocked.length > 0).length,
+      attemptedBlocked: attacks.filter((r) => !r.verdict.leaked && r.verdict.blockedLeaks.length > 0).length,
+      frictionBlocked: attacks.filter((r) => r.verdict.blockedLeaks.length === 0 && r.verdict.attemptedButBlocked.length > 0).length,
       nBenign: benign.length,
       benignDone: share('done'),
       falseBlock: share('blocked'),
