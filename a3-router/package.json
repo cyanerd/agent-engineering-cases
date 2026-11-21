@@ -1,0 +1,15 @@
+{
+  "name": "a3-router",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "fetch-gsm8k": "tsx scripts/fetch-gsm8k.ts",
+    "runs": "tsx src/run.ts",
+    "report": "tsx src/report.ts",
+    "case": "tsx src/run.ts && tsx src/report.ts"
+  },
+  "dependencies": { "@aec/llm": "workspace:*" }
+}
