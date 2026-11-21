@@ -16,7 +16,7 @@ export function normalizeNumber(s: string): number | undefined {
   return Number.isFinite(n) ? n : undefined;
 }
 
-function lastNumber(s: string): number | undefined {
+export function lastNumber(s: string): number | undefined {
   const all = s.replace(/[  ]/g, ' ').match(/-?\d[\d ,.]*\d|-?\d/g);
   return all ? normalizeNumber(all[all.length - 1]!) : undefined;
 }
