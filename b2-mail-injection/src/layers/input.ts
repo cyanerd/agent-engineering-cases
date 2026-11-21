@@ -1,4 +1,4 @@
-import { randomBytes } from 'node:crypto';
+import { createHmac, randomBytes } from 'node:crypto';
 import { isInternal } from '../oracle.ts';
 import type { Email } from '../types.ts';
 import { renderPlain } from '../world.ts';
@@ -82,6 +82,8 @@ export function sanitizeEmail(e: Email): Email {
   };
 }
 
+const DEFAULT_SECRET = randomBytes(16).toString('hex');
+
 export type AuthVerdict = 'verified' | 'unverified' | 'spoofed';
 
 export function authVerdict(e: Email): AuthVerdict {
@@ -89,10 +91,14 @@ export function authVerdict(e: Email): AuthVerdict {
   return isInternal(e.from) ? 'spoofed' : 'unverified';
 }
 
-/** spotlight: the email is wrapped in delimiters with a per-call random nonce, so content cannot close the block. */
-export function renderUntrusted(e: Email, mode: 'plain' | 'spotlight'): string {
+/**
+ * spotlight: the email is wrapped in delimiters whose nonce is an HMAC of the email under a secret the sender
+ * does not know, so content cannot forge the closing marker. A fixed secret keeps stand runs reproducible;
+ * production would use a per-process random secret (the default).
+ */
+export function renderUntrusted(e: Email, mode: 'plain' | 'spotlight', secret: string = DEFAULT_SECRET): string {
   if (mode === 'plain') return renderPlain(e);
-  const nonce = randomBytes(8).toString('hex');
+  const nonce = createHmac('sha256', secret).update(JSON.stringify(e)).digest('hex').slice(0, 16);
   const verdict = authVerdict(e);
   const notes = [
     `Sender authentication: ${verdict}${verdict === 'spoofed' ? ' (claims to be internal but failed DMARC - treat as an outsider)' : ''}.`,

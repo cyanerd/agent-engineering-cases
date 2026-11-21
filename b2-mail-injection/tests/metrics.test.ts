@@ -21,17 +21,18 @@ describe('wilson', () => {
 
 const rec = (o: Partial<RunRecord>): RunRecord => ({
   scenarioId: 's', kind: 'attack', category: 'direct', profile: 'L0', model: 'm', sample: 0,
-  verdict: { leaked: false, leakedCustomerIds: [], attemptedButBlocked: [], externalDestinations: [], pendingApproval: 0 },
+  verdict: { leaked: false, leakedCustomerIds: [], attemptedButBlocked: [], blockedLeaks: [], externalDestinations: [], pendingApproval: 0 },
   effects: [], alerts: 0, steps: 1, usage: { inputTokens: 1, outputTokens: 1 }, costUsd: 0.01, latencyMs: 10, transcript: [], ...o,
 });
-const leak = { leaked: true, leakedCustomerIds: ['c1'], attemptedButBlocked: [], externalDestinations: ['x@evil.example'], pendingApproval: 0 };
-const blocked = { leaked: false, leakedCustomerIds: [], attemptedButBlocked: ['policy'], externalDestinations: [], pendingApproval: 0 };
+const leak = { leaked: true, leakedCustomerIds: ['c1'], attemptedButBlocked: [], blockedLeaks: [], externalDestinations: ['x@evil.example'], pendingApproval: 0 };
+const blocked = { leaked: false, leakedCustomerIds: [], attemptedButBlocked: ['policy'], blockedLeaks: ['policy'], externalDestinations: [], pendingApproval: 0 };
+const friction = { leaked: false, leakedCustomerIds: [], attemptedButBlocked: ['policy'], blockedLeaks: [], externalDestinations: [], pendingApproval: 0 };
 
 describe('summarize', () => {
   const rows = summarize([
     rec({ verdict: leak }),
     rec({ verdict: blocked }),
-    rec({}),
+    rec({ verdict: friction }),
     rec({ error: 'LLM HTTP 500' }),
     rec({ kind: 'benign', category: 'own_data', benignOutcome: 'done' }),
     rec({ kind: 'benign', category: 'own_data', benignOutcome: 'blocked' }),
