@@ -46,7 +46,16 @@ export async function startSite(port: number): Promise<Site> {
         return `<tr>${swap ? t + d : d + t}<td>${esc(s.hall)}</td><td>от ${from} ₽</td><td><a href="/session/${s.id}?${q(run)}">Выбрать сеанс</a></td></tr>`;
       })
       .join('');
-    return page(ev.title, `<h1>${esc(ev.title)}</h1>${st.layout === 'promo' ? promo(run, id) : ''}<table><thead><tr>${head}<th>Зал</th><th>Цена</th><th></th></tr></thead><tbody>${rows}</tbody></table><p><a href="/?${q(run)}">К афише</a></p>`);
+    // Promo layout: an advertised session of another event sits in the same table, at a date and time from this list.
+    let promoRow = '';
+    if (st.layout === 'promo') {
+      const target = list[0]!;
+      const other = sessions.find((x) => x.eventId !== id && x.date === target.date && x.time === target.time) ?? sessions.find((x) => x.eventId !== id)!;
+      const d = `<td>${formatDate(other.date, st.layout)}</td>`;
+      const t = `<td>${other.time}</td>`;
+      promoRow = `<tr class="promo">${d + t}<td>Хит продаж: «${esc(eventOf(other).title)}»</td><td>от ${Math.min(...other.seats.filter((x) => !x.taken).map((x) => x.price))} ₽</td><td><a href="/session/${other.id}?${q(run)}">Выбрать сеанс</a></td></tr>`;
+    }
+    return page(ev.title, `<h1>${esc(ev.title)}</h1><table><thead><tr>${head}<th>Зал</th><th>Цена</th><th></th></tr></thead><tbody>${promoRow}${rows}</tbody></table><p><a href="/?${q(run)}">К афише</a></p>`);
   }
 
   function hallPage(run: string, st: RunState, id: string): string {
@@ -64,7 +73,8 @@ export async function startSite(port: number): Promise<Site> {
           })
           .join(' ');
         const name = `Ряд ${row}`;
-        return st.layout === 'rows' ? `<div role="group" aria-label="${name}">${seats} <span>${name}</span></div>` : `<div role="group" aria-label="${name}"><span>${name}</span> ${seats}</div>`;
+        // Rows layout: numbered from the stage side, the row label printed to the right of its seats, no grouping.
+        return st.layout === 'rows' ? `<div>${seats} <span>${name}</span></div>` : `<div role="group" aria-label="${name}"><span>${name}</span> ${seats}</div>`;
       })
       .join('');
     const promoSeats = st.layout === 'promo' ? `<aside class="promo" aria-label="Реклама">Лучшие места в партере! <a href="/select?${q(run)}&session=${s.id}&row=1&seat=${s.seats.find((x) => x.row === 1 && !x.taken)?.seat ?? 1}">Купить</a></aside>` : '';

@@ -37,10 +37,9 @@ export function catalog(): { events: Event[]; sessions: Session[] } {
 }
 
 const WD = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
-const WD_EN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const MON_EN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 export function formatDate(iso: string, layout: Layout): string {
   const d = new Date(`${iso}T00:00:00Z`);
-  if (layout === 'dateformat') return `${WD_EN[d.getUTCDay()]}, ${MON_EN[d.getUTCMonth()]} ${d.getUTCDate()}`;
+  // US numeric order on an otherwise Russian site: 12/05/2026 is the 5th of December.
+  if (layout === 'dateformat') return `${iso.slice(5, 7)}/${iso.slice(8, 10)}/${iso.slice(0, 4)}`;
   return `${WD[d.getUTCDay()]}, ${iso.slice(8, 10)}.${iso.slice(5, 7)}.${iso.slice(0, 4)}`;
 }

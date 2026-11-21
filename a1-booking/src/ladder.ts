@@ -30,8 +30,6 @@ export interface LadderResult {
   by?: string;
 }
 
-const MONTHS_EN: Record<string, string> = { Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06', Jul: '07', Aug: '08', Sep: '09', Oct: '10', Nov: '11', Dec: '12' };
-
 export interface CartLine { title: string; date: string; time: string; row: number; seat: number; price: number }
 
 /** Independent reader of the cart page: plain text parsing, nothing from the agent's reasoning. */
@@ -41,9 +39,9 @@ export function parseCartHtml(html: string): CartLine[] {
     const raw = m[2]!.trim();
     let date = '';
     const ru = raw.match(/(\d{2})\.(\d{2})\.(\d{4})/);
-    const en = raw.match(/([A-Z][a-z]{2}) (\d{1,2})$/);
+    const us = raw.match(/(\d{2})\/(\d{2})\/(\d{4})/);
     if (ru) date = `${ru[3]}-${ru[2]}-${ru[1]}`;
-    else if (en) date = `${TODAY.slice(0, 4)}-${MONTHS_EN[en[1]!]}-${en[2]!.padStart(2, '0')}`;
+    else if (us) date = `${us[3]}-${us[1]}-${us[2]}`;
     out.push({ title: m[1]!.replace(/&quot;/g, '"').replace(/&amp;/g, '&'), date, time: m[3]!, row: Number(m[4]), seat: Number(m[5]), price: Number(m[6]) });
   }
   return out;

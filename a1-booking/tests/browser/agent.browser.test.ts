@@ -53,15 +53,15 @@ describe('agent in a real browser', () => {
     expect(judgeOrder(site.order('stub-1'), c.intent)).toEqual({ ok: true, problems: [] });
   });
 
-  it('on the "rows" layout seat buttons carry no row number, but refs give the group as context', async () => {
+  it('on the "rows" layout seat buttons carry no row number and no group: the row label comes after its seats', async () => {
     const c = intents().find((x) => x.layout === 'rows')!;
+    const page = await browser.newPage();
     const s = catalog().sessions.find((x) => x.eventId === c.intent.eventId && x.date === c.intent.date && x.time === c.intent.time)!;
-    const seat = s.seats.find((x) => !x.taken && x.row === c.intent.rowFrom)!;
-    const run = await runAgent({
-      site, browser, c, mode: 'schema', sample: 0, model: { provider: 'ollama', model: 'stub' }, runId: 'stub-2',
-      llm: scripted([new RegExp(`link "${c.intent.eventTitle}"`), new RegExp(`Выбрать сеанс" - ${formatDate(s.date, 'main').replace(/[.]/g, '\\.')} \\| ${s.time} \\|`), new RegExp(`"Место ${seat.seat}, ${seat.price} ₽" - Ряд ${seat.row}$`)]),
-    });
-    expect(run.trace).toHaveLength(4);
-    expect(site.cart('stub-2')).toEqual([{ sessionId: expect.any(String), row: seat.row, seat: seat.seat, price: seat.price }]);
+    await page.goto(`${site.url}/session/${s.id}?run=stub-rows&layout=rows`);
+    const { snapshotText } = await import('../../src/agent.ts');
+    const snap = await snapshotText(page);
+    await page.close();
+    expect(snap).not.toMatch(/group "Ряд/);
+    expect(snap).toMatch(/button "Место \d+, \d+ ₽[^"]*"[\s\S]*Ряд 12/);
   });
 });

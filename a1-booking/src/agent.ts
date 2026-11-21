@@ -59,7 +59,7 @@ export async function snapshotText(page: Page): Promise<string> {
       const row = el.closest('tr');
       const group = el.closest('[role=group]');
       const aside = el.closest('aside');
-      const ctx = row ? Array.from(row.querySelectorAll('td')).map((td) => td.textContent?.trim()).filter(Boolean).slice(0, 4).join(' | ') : group ? group.getAttribute('aria-label') ?? '' : aside ? `реклама: ${aside.textContent?.trim().slice(0, 80)}` : '';
+      const ctx = row ? Array.from(row.querySelectorAll('td')).map((td) => td.textContent?.trim()).filter(Boolean).slice(0, 4).join(' | ') : group ? group.getAttribute('aria-label') ?? '' : aside ? aside.textContent?.trim().slice(0, 80) ?? '' : '';
       return `[ref=${i + 1}] ${el.tagName === 'A' && el.getAttribute('role') !== 'button' ? 'link' : 'button'} "${name}"${ctx ? ` - ${ctx}` : ''}`;
     });
   });

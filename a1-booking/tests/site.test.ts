@@ -26,11 +26,13 @@ describe('layouts', () => {
       for (const s of sessions) expect(html, `${layout} ${s.id}`).toContain(`/session/${s.id}`);
     }
   });
-  it('the promo layout has an extra "Купить" button that leads to another event', async () => {
+  it('the promo layout adds a session row of another event to the table, at a date and time from the list', async () => {
     const ev = catalog().events[0]!;
     const html = await text(`/event/${ev.id}?layout=promo&run=t-promo`);
-    expect(html).toMatch(/promo/);
-    expect((html.match(/Купить/g) ?? []).length).toBeGreaterThan(0);
+    const rows = html.match(/<tr[^>]*>/g)!.length;
+    const plain = (await text(`/event/${ev.id}?layout=main&run=t-main2`)).match(/<tr[^>]*>/g)!.length;
+    expect(rows).toBe(plain + 1);
+    expect(html).toMatch(/Хит продаж: «/);
   });
 });
 
