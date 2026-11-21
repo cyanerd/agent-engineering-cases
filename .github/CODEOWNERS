@@ -1,3 +1,4 @@
-# The SMS provider layer is a critical path: changes need a review by its owner (enforced once the repo is public).
-/c1-agent-pr/src/ @cyanerd
-/c1-agent-pr/contract/ @cyanerd
+# The SMS module, its contract tests, the PR guard and CI are critical: changes need a review by their owner.
+# pr-guard checks this at the PR head commit; branch protection enforces it once the repository is public.
+/c1-agent-pr/ @cyanerd
+/.github/ @cyanerd
