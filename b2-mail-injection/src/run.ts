@@ -17,8 +17,8 @@ process.loadEnvFile?.(new URL('../.env', ROOT));
 
 export const MODELS: Record<string, ModelRef & { concurrency: number; samples: number; profiles?: string[] }> = {
   qwen: { provider: 'ollama', model: process.env.B2_LOCAL_MODEL ?? 'qwen3:8b', concurrency: 1, samples: 3 },
-  flash: { provider: 'opencode', model: 'deepseek-v4.1-flash', concurrency: 6, samples: 3 },
-  pro: { provider: 'opencode', model: 'deepseek-v4-pro', concurrency: 4, samples: 1, profiles: ['L0-baseline', 'L1-prompt', 'full'] },
+  flash: { provider: 'opencode', model: 'deepseek-v4.1-flash', concurrency: 2, samples: 3 },
+  pro: { provider: 'opencode', model: 'deepseek-v4-pro', concurrency: 2, samples: 1, profiles: ['L0-baseline', 'L1-prompt', 'full'] },
 };
 
 function arg(name: string): string | undefined {

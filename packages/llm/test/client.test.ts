@@ -136,4 +136,20 @@ describe('createLlm', () => {
     await expect(createLlm({ cacheDir, fetchImpl, prices, retryDelayMs: 0 }).chat(req)).rejects.toThrow(/OPENCODE_API_KEY/);
     expect(calls).toHaveLength(0);
   });
+
+  it('on 429 waits Retry-After seconds and retries more patiently than on 5xx', async () => {
+    const waits: number[] = [];
+    const r429 = () => new Response('slow down', { status: 429, headers: { 'retry-after': '5' } });
+    const { calls, fetchImpl } = stubFetch([r429, r429, r429, r429, ok()]);
+    const r = await createLlm({ cacheDir, fetchImpl, prices, retryDelayMs: 1, sleep: async (ms) => void waits.push(ms) }).chat(req);
+    expect(r.cached).toBe(false);
+    expect(calls).toHaveLength(5);
+    expect(waits.slice(0, 4)).toEqual([5000, 5000, 5000, 5000]);
+  });
+
+  it('gives up on 429 after 8 attempts', async () => {
+    const { calls, fetchImpl } = stubFetch([() => new Response('x', { status: 429 })]);
+    await expect(createLlm({ cacheDir, fetchImpl, prices, retryDelayMs: 0, sleep: async () => {} }).chat(req)).rejects.toThrow(/429/);
+    expect(calls).toHaveLength(8);
+  });
 });
