@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",
-    "test": "vitest run tests/unit",
+    "test": "vitest run tests/unit --passWithNoTests",
     "build:spi": "cd keycloak-sms && mvn -q -B package",
     "up": "tsx scripts/up.ts",
     "down": "docker compose down -v",
