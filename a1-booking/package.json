@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",
-    "test": "vitest run tests",
+    "test": "vitest run tests --exclude tests/browser/**",
+    "test:browser": "vitest run tests/browser",
     "site": "tsx src/site/server.ts",
     "runs": "tsx src/run.ts",
     "report": "tsx src/report.ts",
