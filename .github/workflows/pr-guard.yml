@@ -28,4 +28,4 @@ jobs:
           gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$PR/files" | jq -s 'add' > /tmp/files.json
           gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$PR/reviews" | jq -s 'add // []' > /tmp/reviews.json
       - name: Critical paths, owner review, size, scope
-        run: pnpm --filter c1-agent-pr exec tsx scripts/pr-guard.ts "$GITHUB_EVENT_PATH" /tmp/files.json /tmp/reviews.json .github/CODEOWNERS
+        run: pnpm --filter c1-agent-pr exec tsx scripts/pr-guard.ts "$GITHUB_EVENT_PATH" /tmp/files.json /tmp/reviews.json "$GITHUB_WORKSPACE/.github/CODEOWNERS"
