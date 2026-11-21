@@ -15,6 +15,19 @@ export interface Api {
   close(): Promise<void>;
 }
 const ADMIN_KEY = 'stand-admin';
+/** Keycloak (iat) and Postgres (revoked_before) clocks can differ; tokens issued this close after a revocation are refused too. */
+const CLOCK_SKEW_MS = 5000;
+
+async function readJson(req: IncomingMessage): Promise<Record<string, unknown>> {
+  let raw = '';
+  for await (const chunk of req) raw += chunk;
+  try {
+    const v = JSON.parse(raw || '{}');
+    return v && typeof v === 'object' ? v : {};
+  } catch {
+    return {};
+  }
+}
 
 function send(res: ServerResponse, status: number, body: unknown) {
   res.writeHead(status, { 'content-type': 'application/json' });
@@ -48,7 +61,7 @@ export async function startApi(mode: Mode, port: number): Promise<Api> {
       `SELECT m.status, r.at FROM memberships m LEFT JOIN revoked_before r ON r.person_id = m.person_id AND r.org_id = m.org_id WHERE m.person_id = $1 AND m.org_id = $2`,
       [t.sub, org]);
     if (!rows[0] || rows[0].status !== 'active') return false;
-    return !rows[0].at || (t.iat ?? 0) * 1000 > new Date(rows[0].at).getTime();
+    return !rows[0].at || (t.iat ?? 0) * 1000 > new Date(rows[0].at).getTime() + CLOCK_SKEW_MS;
   }
 
   async function hasConsent(t: JWTPayload, org: string, doc: string): Promise<{ ok: boolean; version?: number }> {
@@ -70,6 +83,11 @@ export async function startApi(mode: Mode, port: number): Promise<Api> {
 
     if (p.startsWith('/admin/')) {
       if (req.headers['x-admin-key'] !== ADMIN_KEY) return send(res, 401, { error: 'admin key required' });
+      if ((m = p.match(/^\/admin\/orgs\/([A-Z])\/members\/([\w-]+)\/rehire$/)) && req.method === 'POST' && mode === 'fixed') {
+        // Rehire reactivates the membership; revoked_before stays, so tokens from before the firing remain dead.
+        await pool.query(`UPDATE memberships SET status = 'active', started_at = now(), ended_at = NULL WHERE person_id = $1 AND org_id = $2`, [m[2], m[1]]);
+        return send(res, 204, {});
+      }
       if ((m = p.match(/^\/admin\/orgs\/([A-Z])\/members\/([\w-]+)\/fire$/)) && req.method === 'POST') {
         const [, org, person] = m as unknown as [string, string, string];
         if (mode === 'naive') {
@@ -107,6 +125,10 @@ export async function startApi(mode: Mode, port: number): Promise<Api> {
       }
       const v = await latestVersion(doc);
       if (!v) return send(res, 404, { error: 'unknown document' });
+      // The client says which version the person was shown; accepting "whatever is latest now" could record a text they never saw.
+      const seen = (await readJson(req)).version;
+      if (typeof seen !== 'number') return send(res, 400, { error: 'version of the document shown to the person is required' });
+      if (seen !== v.version) return send(res, 409, { error: 'document changed, show the new version', latest: v.version });
       await pool.query(`INSERT INTO acceptances (person_id, version_id, org_id) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING`, [t.sub, v.id, v.scope === 'org' ? org : null]);
       return send(res, 204, {});
     }

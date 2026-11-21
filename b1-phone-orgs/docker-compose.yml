@@ -27,6 +27,8 @@ services:
       KC_HTTP_PORT: "8080"
       SMS_STUB_OUTBOX: "true"
       SMS_CODE_TTL_SECONDS: ${SMS_CODE_TTL_SECONDS:-15}
+      SMS_WINDOW_SECONDS: ${SMS_WINDOW_SECONDS:-20}
+      SMS_IP_LIMIT: ${SMS_IP_LIMIT:-120}
     ports: ["18080:8080", "19000:9000"]
     volumes:
       - ./keycloak:/opt/keycloak/data/import:ro

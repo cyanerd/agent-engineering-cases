@@ -47,3 +47,58 @@ describe('SMS login through Keycloak', () => {
     expect(await smsLogin('fixed', '+79000000998')).toMatchObject({ ok: false, error: 'unknown_phone' });
   });
 });
+
+const WINDOW = Number(process.env.SMS_WINDOW_SECONDS ?? 20);
+const wait = (s: number) => new Promise((r) => setTimeout(r, s * 1000));
+
+describe('review fixes', () => {
+  it('the outbox is closed without an admin token', async () => {
+    await requestCode('fixed', '+79000000910');
+    await expect(readOutbox('fixed', '+79000000910', false)).rejects.toThrow(/401|403/);
+  });
+
+  it('parallel wrong guesses cannot get more than 5 checks', async () => {
+    const phone = '+79000000911';
+    await createUser('fixed', `sms-race-${Date.now()}`, person(phone));
+    await requestCode('fixed', phone);
+    const code = await readOutbox('fixed', phone);
+    const wrong = code === '000000' ? '111111' : '000000';
+    const rs = await Promise.all(Array.from({ length: 60 }, () => tokenBySms('fixed', phone, wrong)));
+    const checked = rs.filter((r) => !r.ok && r.description === 'wrong code').length;
+    expect(checked).toBeLessThanOrEqual(5);
+    expect(await tokenBySms('fixed', phone, code)).toMatchObject({ ok: false, error: 'too_many_attempts' });
+  });
+
+  it('parallel exchanges of one code give exactly one token', async () => {
+    const phone = '+79000000912';
+    await createUser('fixed', `sms-once-${Date.now()}`, person(phone));
+    await requestCode('fixed', phone);
+    const code = await readOutbox('fixed', phone);
+    const rs = await Promise.all(Array.from({ length: 20 }, () => tokenBySms('fixed', phone, code)));
+    expect(rs.filter((r) => r.ok)).toHaveLength(1);
+  });
+
+  it('a duplicate that bypassed the app is refused at sign-in as ambiguous', async () => {
+    const phone = '+79000000913';
+    await createUser('fixed', `dup-a-${Date.now()}`, person(phone));
+    await createUser('fixed', `dup-b-${Date.now()}`, person(phone));
+    expect(await smsLogin('fixed', phone)).toMatchObject({ ok: false, error: 'ambiguous_phone' });
+  });
+
+  it('limits reset after the window: a locked phone and a throttled IP recover', async () => {
+    const phone = '+79000000914';
+    for (let i = 0; i < 5; i++) await tokenBySms('fixed', phone, '123456');
+    const codes: number[] = [];
+    for (let i = 0; i < 6; i++) codes.push(await requestCode('fixed', '+79000000915'));
+    expect(codes.at(-1)).toBe(429);
+    // per-IP budget: distinct phones from one address are throttled too
+    let ipStatus = 204;
+    for (let i = 0; i < 200 && ipStatus === 204; i++) ipStatus = await requestCode('fixed', `+7900001${String(i).padStart(4, '0')}`);
+    expect(ipStatus).toBe(429);
+    await wait(WINDOW * 2 + 2);
+    expect(await requestCode('fixed', '+79000000915')).toBe(204);
+    expect(await requestCode('fixed', '+79000019999')).toBe(204);
+    await createUser('fixed', `sms-unlock-${Date.now()}`, person(phone));
+    expect((await smsLogin('fixed', phone)).ok).toBe(true);
+  }, 120_000);
+});

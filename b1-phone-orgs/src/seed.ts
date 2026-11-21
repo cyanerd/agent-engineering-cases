@@ -1,5 +1,5 @@
 import { pool, ensureReference } from './db.ts';
-import { createUser } from './kc.ts';
+import { createUser, deleteUser } from './kc.ts';
 
 export interface PersonSpec {
   name: string;
@@ -40,6 +40,9 @@ export async function seedPerson(mode: 'naive' | 'fixed', p: PersonSpec): Promis
     await client.query('COMMIT');
   } catch (e) {
     await client.query('ROLLBACK');
+    // Compensation: the Keycloak user must not outlive a failed person record, or the real owner gets ambiguous_phone.
+    await deleteUser('fixed', id);
+    if ((e as { code?: string }).code === '23505') throw new Error(`409 phone ${p.phone} already belongs to a person`);
     throw e;
   } finally {
     client.release();

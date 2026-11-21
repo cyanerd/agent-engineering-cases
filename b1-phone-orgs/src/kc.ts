@@ -44,8 +44,8 @@ export async function requestCode(realm: string, phone: string): Promise<number>
   return (await fetch(`${KC}/realms/${realm}/sms/code`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ phone }) })).status;
 }
 
-export async function readOutbox(realm: string, phone: string): Promise<string> {
-  const r = await fetch(`${KC}/realms/${realm}/sms/outbox?phone=${encodeURIComponent(phone)}`);
+export async function readOutbox(realm: string, phone: string, auth = true): Promise<string> {
+  const r = await fetch(`${KC}/realms/${realm}/sms/outbox?phone=${encodeURIComponent(phone)}`, auth ? { headers: { authorization: `Bearer ${await adminToken()}` } } : {});
   if (!r.ok) throw new Error(`outbox ${r.status}`);
   return ((await r.json()) as { code: string }).code;
 }
@@ -68,4 +68,15 @@ export async function smsLogin(realm: string, phone: string, deviceId = 'device-
   const s = await requestCode(realm, phone);
   if (s !== 204) return { ok: false, status: s, error: 'code_request_failed' };
   return tokenBySms(realm, phone, await readOutbox(realm, phone), deviceId);
+}
+
+export async function usersByPhone(realm: string, phone: string): Promise<string[]> {
+  const r = await admin(`${realm}/users?q=${encodeURIComponent(`phone:${phone}`)}&max=100`);
+  if (!r.ok) throw new Error(`users by phone ${r.status}`);
+  return ((await r.json()) as { id: string }[]).map((u) => u.id);
+}
+
+export async function deleteUser(realm: string, id: string): Promise<void> {
+  const r = await admin(`${realm}/users/${id}`, { method: 'DELETE' });
+  if (!r.ok && r.status !== 404) throw new Error(`delete user ${r.status}`);
 }
