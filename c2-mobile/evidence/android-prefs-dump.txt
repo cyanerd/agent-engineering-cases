@@ -1,0 +1,9 @@
+# adb shell run-as example.aec.bank cat shared_prefs/WSSecureStorageSharedPreferences.xml
+Sat Nov 21 13:05:40 UTC 2026
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+    <string name="capacitor-storage_session-token">QIEcdSaA5T9PThJxHyAfJhHVxfH8ChLGTBv+AeLYmDjVHJ8h&#16;LPeOfECt5BCWDhks</string>
+    <string name="capacitor-storage_selftest-probe">Av55MOsjcOywIXCPprQ4Zg9+vor9VlVZtTtwtaDINZaI5rVT&#16;E8C1CBRAAPvr/xHj</string>
+</map>
+
+# поиск открытого значения 'demo-' в файлах приложения (пустой вывод = не найдено)
