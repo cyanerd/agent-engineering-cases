@@ -44,8 +44,8 @@
 | PR | До защит | Защиты v1 (из ветки PR) | Защиты v2 (из `main`) |
 |---|---|---|---|
 | #2 агент, прогон 1 (загрязнён) | зелёный ([прогон](https://github.com/cyanerd/agent-engineering-cases/actions/runs/44896184479)) | `contract` зелёный, `pr-guard` красный ([прогон](https://github.com/cyanerd/agent-engineering-cases/actions/runs/44896721866)) | - (закрыт) |
-| #5 агент, прогон 2 (изолирован) | зелёный ([прогон](https://github.com/cyanerd/agent-engineering-cases/actions/runs/44898173493)) | - | см. [результаты v2](#результаты-v2) |
-| #3 переписанный слой (сконструирован) | зелёный ([прогон](https://github.com/cyanerd/agent-engineering-cases/actions/runs/44896380183)) | `contract` красный (3 из 8), `pr-guard` красный ([прогон](https://github.com/cyanerd/agent-engineering-cases/actions/runs/44896877691)) | см. [результаты v2](#результаты-v2) |
+| #5 агент, прогон 2 (изолирован) | зелёный ([прогон](https://github.com/cyanerd/agent-engineering-cases/actions/runs/44898173493)) | - | `test` с контрактом зелёный ([прогон](https://github.com/cyanerd/agent-engineering-cases/actions/runs/44899218560)); `pr-guard` красный: модуль меняется без одобрения владельца, `automerge`, нет `Scope:` ([прогон](https://github.com/cyanerd/agent-engineering-cases/actions/runs/44899856914)) |
+| #3 переписанный слой (сконструирован) | зелёный ([прогон](https://github.com/cyanerd/agent-engineering-cases/actions/runs/44896380183)) | `contract` красный (3 из 8), `pr-guard` красный ([прогон](https://github.com/cyanerd/agent-engineering-cases/actions/runs/44896877691)) | `test` с контрактом красный ([прогон](https://github.com/cyanerd/agent-engineering-cases/actions/runs/44899215550)); `pr-guard` красный по всем четырём: 558 строк в критичных путях, `automerge`, нет одобрения владельца, нет `Scope:` ([прогон](https://github.com/cyanerd/agent-engineering-cases/actions/runs/44899648691)) |
 
 **Контрактные тесты** на PR #3 ловят три сдвига из четырёх:
 - одновременные запросы;
@@ -71,7 +71,13 @@
 
 ### Результаты v2
 
-Заполняются после слияния защит в `main`: `pull_request_target` берёт workflow только из ветки по умолчанию.
+Защиты v2 действуют с момента, когда попали в `main`: `pull_request_target` берёт workflow только из ветки по умолчанию.
+- **PR #3 (опасный)** заблокирован двумя независимыми способами: контрактными тестами по смыслу и `pr-guard` по процессу.
+- **PR #5 (аккуратный)** проходит контракт, но тоже ждёт одобрения владельца. По диффу их не различить, а цена ошибки одинакова.
+
+По ходу всплыли две ошибки уже во второй версии, обе исправлены:
+- после слияния `pr-guard` падал из-за относительного пути к CODEOWNERS (PR #6). Проверка при этом падала «закрыто», то есть безопасно, но по неверной причине;
+- `AGENT_TASK.md` в корне модуля считался критичным файлом (шаблон `**/*.md` не ловит файлы в корне). На вердикт это не влияло, тест добавлен.
 
 ## Что делать
 
@@ -95,7 +101,7 @@
 - контрактные тесты абстракции, не зависящие от реализации, - обязательной проверкой;
 - **правила проверки живут в `main` и не исполняют код PR**; сама проверка, CI и контрактные тесты - тоже критичные пути.
 
-Реализация - [`scripts/pr-guard.ts`](scripts/pr-guard.ts) (13 тестов) и [`.github/workflows/pr-guard.yml`](../.github/workflows/pr-guard.yml).
+Реализация - [`scripts/pr-guard.ts`](scripts/pr-guard.ts) (14 тестов) и [`.github/workflows/pr-guard.yml`](../.github/workflows/pr-guard.yml).
 
 ## Вывод
 

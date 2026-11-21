@@ -37,7 +37,7 @@ export interface Failure {
 
 /** The whole module (docs aside) plus CI: listing single files is bypassed by moving code into a new directory. */
 export const CRITICAL = ['c1-agent-pr/**', '.github/**'];
-export const NOT_CRITICAL = ['c1-agent-pr/**/*.md', 'c1-agent-pr/docs/**'];
+export const NOT_CRITICAL = ['c1-agent-pr/*.md', 'c1-agent-pr/**/*.md', 'c1-agent-pr/docs/**'];
 export const RELEVANT = ['c1-agent-pr/**', '.github/**'];
 export const SIZE_LIMIT = 400;
 

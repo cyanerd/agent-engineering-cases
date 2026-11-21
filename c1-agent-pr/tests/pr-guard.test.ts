@@ -70,4 +70,8 @@ describe('prGuard', () => {
     const i = { ...base, body: 'Scope: c1-agent-pr/**', reviews: ownerOk, files: [f('c1-agent-pr/src/gateway/dispatcher.ts', 150), f('c1-agent-pr/lib/registry.ts', 80), f('c1-agent-pr/src/sender.ts', 25, 50), f('c1-agent-pr/src/gateway/retry.ts', 200)] };
     expect(checks(i)).toEqual(['size-limit']);
   });
+
+  it('markdown at the module root is documentation, not a critical path (found on PR #5: AGENT_TASK.md)', () => {
+    expect(checks({ ...base, body: 'Scope: c1-agent-pr/**', files: [f('c1-agent-pr/AGENT_TASK.md'), f('c1-agent-pr/agent-runs/log.md')] })).toEqual([]);
+  });
 });
