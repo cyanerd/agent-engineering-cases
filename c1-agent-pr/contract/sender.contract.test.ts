@@ -4,7 +4,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import { createCodeSender } from '../src/sender.ts';
-import { FakeProvider } from '../tests/fake-provider.ts';
+import { FakeProvider } from './fake-provider.ts';
 
 const opts = (providers: FakeProvider[]) => ({ providers, retries: 2, timeoutMs: 50 });
 

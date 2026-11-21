@@ -1,37 +1,31 @@
 name: pr-guard
+# pull_request_target: the workflow and the guard come from the BASE branch, so a PR cannot weaken the check that
+# judges it. Nothing from the PR is checked out or executed here: files, labels and reviews are read through the API.
 on:
-  pull_request:
-    types: [opened, synchronize, reopened, edited, labeled, unlabeled, auto_merge_enabled, auto_merge_disabled]
-    paths: ['c1-agent-pr/**']
+  pull_request_target:
+    types: [opened, synchronize, reopened, edited, labeled, unlabeled, auto_merge_enabled, auto_merge_disabled, ready_for_review]
+permissions:
+  contents: read
+  pull-requests: read
 jobs:
-  contract:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: pnpm
-      - run: pnpm i --frozen-lockfile
-      - name: Contract tests of the SMS sender (independent of the implementation)
-        run: pnpm --filter c1-agent-pr run contract
   pr-guard:
     runs-on: ubuntu-latest
-    permissions:
-      pull-requests: read
-      contents: read
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm i --frozen-lockfile
-      - name: Changed files
+      - name: PR files and reviews
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh api --paginate "repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files" | jq -s 'add' > /tmp/files.json
-      - name: Critical paths, auto-merge, size, scope
-        run: pnpm --filter c1-agent-pr exec tsx scripts/pr-guard.ts "$GITHUB_EVENT_PATH" /tmp/files.json
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$PR/files" | jq -s 'add' > /tmp/files.json
+          gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$PR/reviews" | jq -s 'add // []' > /tmp/reviews.json
+      - name: Critical paths, owner review, size, scope
+        run: pnpm --filter c1-agent-pr exec tsx scripts/pr-guard.ts "$GITHUB_EVENT_PATH" /tmp/files.json /tmp/reviews.json .github/CODEOWNERS
