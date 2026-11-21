@@ -16,14 +16,14 @@ export async function checkBiometry(): Promise<string> {
 
 export async function checkSecureStorage(): Promise<string> {
   const token = `demo-${Date.now()}`;
-  await SecureStorage.set('session-token', token);
-  const back = await SecureStorage.get('session-token');
+  await SecureStorage.set('selftest-probe', token);
+  const back = await SecureStorage.get('selftest-probe');
   const inLocal = Object.keys(localStorage).some((k) => localStorage.getItem(k)?.includes(token));
   return `хранилище: записано и прочитано ${back === token ? 'верно' : 'НЕВЕРНО'}; в localStorage ${inLocal ? 'ЕСТЬ' : 'нет'}`;
 }
 
 export async function enablePrivacyScreen(): Promise<string> {
-  const r = await PrivacyScreen.enable({ android: { dimBackground: true }, ios: { blurEffect: 'dark' } } as never);
+  const r = await PrivacyScreen.enable({ android: { dimBackground: true }, ios: { blurEffect: 'dark' } });
   const s = await PrivacyScreen.isEnabled();
   return `защита экрана: ${s.enabled ? 'включена' : 'НЕ включена'} (${JSON.stringify(r)})`;
 }

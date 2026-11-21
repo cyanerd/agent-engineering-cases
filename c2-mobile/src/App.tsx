@@ -9,9 +9,9 @@ type Tab = 'account' | 'assistant';
 function DeviceChecks() {
   const [lines, setLines] = useState<string[]>([]);
   const run = (f: () => Promise<string>) => () => f().then((l) => setLines((x) => [...x, l]), (e: Error) => setLines((x) => [...x, `ошибка: ${e.message}`]));
-  // Test builds (VITE_SELFTEST=1) run every check at start: simulators cannot be tapped from a script.
+  // Test builds (vite build --mode selftest) run every check at start: simulators cannot be tapped from a script.
   useEffect(() => {
-    if (import.meta.env.VITE_SELFTEST !== '1') return;
+    if (import.meta.env.MODE !== 'selftest') return;
     (async () => {
       for (const f of [checkSecureStorage, enablePrivacyScreen, checkBiometry]) await run(f)();
     })();
@@ -32,7 +32,7 @@ function DeviceChecks() {
 function Account() {
   return (
     <section>
-      <DeviceChecks />
+      {(import.meta.env.MODE === 'selftest' || import.meta.env.DEV) && <DeviceChecks />}
       <div className="balance-card">
         <div className="muted">Основной счёт</div>
         <div className="balance">{formatMoney(BALANCE)}</div>

@@ -16,6 +16,6 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 # iOS (нужен Xcode)
 cd ios/App && xcodebuild -project App.xcodeproj -scheme App -sdk iphonesimulator -destination 'name=iPhone 17 Pro' build
 
-# Тестовая сборка, которая сама прогоняет проверки устройства при старте
-VITE_SELFTEST=1 pnpm build && npx cap sync
+# Тестовая сборка с панелью проверок, которая сама прогоняет их при старте
+pnpm build:selftest && npx cap sync
 ```
