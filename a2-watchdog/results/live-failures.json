@@ -5,7 +5,19 @@
  },
  {
   "test": "orders load",
-  "message": "Error: expect(locator).toHaveText(expected) failed\n\nLocator: locator('#status')\nExpected pattern: /Готово/\nReceived string:  \"Загрузка…\"\nTimeout: 900ms"
+  "message": "Error: expect(locator).toHaveText(expected) failed\n\nLocator: locator('#status')\nExpected pattern: /Готово/\nReceived string:  \"Загрузка…\"\nTimeout: 800ms"
+ },
+ {
+  "test": "orders load",
+  "message": "Error: expect(locator).toHaveText(expected) failed\n\nLocator: locator('#status')\nExpected pattern: /Готово/\nReceived string:  \"Загрузка…\"\nTimeout: 1000ms"
+ },
+ {
+  "test": "orders load",
+  "message": "Error: expect(locator).toHaveText(expected) failed\n\nLocator: locator('#status')\nExpected pattern: /Готово/\nReceived string:  \"Загрузка…\"\nTimeout: 800ms"
+ },
+ {
+  "test": "orders load",
+  "message": "Error: expect(locator).toHaveText(expected) failed\n\nLocator: locator('#status')\nExpected pattern: /Готово/\nReceived string:  \"Загрузка…\"\nTimeout: 1100ms"
  },
  {
   "test": "orders load",
@@ -13,7 +25,15 @@
  },
  {
   "test": "orders load",
-  "message": "Error: expect(locator).toHaveText(expected) failed\n\nLocator: locator('#status')\nExpected pattern: /Готово/\nReceived string:  \"Загрузка…\"\nTimeout: 900ms"
+  "message": "Error: expect(locator).toHaveText(expected) failed\n\nLocator: locator('#status')\nExpected pattern: /Готово/\nReceived string:  \"Загрузка…\"\nTimeout: 1000ms"
+ },
+ {
+  "test": "orders load",
+  "message": "Error: expect(locator).toHaveText(expected) failed\n\nLocator: locator('#status')\nExpected pattern: /Готово/\nReceived string:  \"Загрузка…\"\nTimeout: 800ms"
+ },
+ {
+  "test": "orders load",
+  "message": "Error: expect(locator).toHaveText(expected) failed\n\nLocator: locator('#status')\nExpected pattern: /Готово/\nReceived string:  \"Загрузка…\"\nTimeout: 800ms"
  },
  {
   "test": "orders load",
@@ -21,7 +41,7 @@
  },
  {
   "test": "orders load",
-  "message": "Error: expect(locator).toHaveText(expected) failed\n\nLocator: locator('#status')\nExpected pattern: /Готово/\nReceived string:  \"Загрузка…\"\nTimeout: 900ms"
+  "message": "Error: expect(locator).toHaveText(expected) failed\n\nLocator: locator('#status')\nExpected pattern: /Готово/\nReceived string:  \"Загрузка…\"\nTimeout: 1100ms"
  },
  {
   "test": "orders load",
@@ -29,31 +49,111 @@
  },
  {
   "test": "orders load",
-  "message": "Error: expect(locator).toHaveText(expected) failed\n\nLocator: locator('#status')\nExpected pattern: /Готово/\nReceived string:  \"Загрузка…\"\nTimeout: 900ms"
+  "message": "Error: expect(locator).toHaveText(expected) failed\n\nLocator: locator('#status')\nExpected pattern: /Готово/\nReceived string:  \"Загрузка…\"\nTimeout: 800ms"
  },
  {
-  "test": "orders load",
-  "message": "Error: expect(locator).toHaveText(expected) failed\n\nLocator: locator('#status')\nExpected pattern: /Готово/\nReceived string:  \"Загрузка…\"\nTimeout: 900ms"
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 2"
  },
  {
-  "test": "orders load",
-  "message": "Error: expect(locator).toHaveText(expected) failed\n\nLocator: locator('#status')\nExpected pattern: /Готово/\nReceived string:  \"Загрузка…\"\nTimeout: 900ms"
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 0"
  },
  {
-  "test": "orders load",
-  "message": "Error: expect(locator).toHaveText(expected) failed\n\nLocator: locator('#status')\nExpected pattern: /Готово/\nReceived string:  \"Загрузка…\"\nTimeout: 900ms"
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 2"
  },
  {
-  "test": "orders load",
-  "message": "Error: expect(locator).toHaveText(expected) failed\n\nLocator: locator('#status')\nExpected pattern: /Готово/\nReceived string:  \"Загрузка…\"\nTimeout: 900ms"
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 2"
  },
  {
-  "test": "orders load",
-  "message": "Error: expect(locator).toHaveText(expected) failed\n\nLocator: locator('#status')\nExpected pattern: /Готово/\nReceived string:  \"Загрузка…\"\nTimeout: 900ms"
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 2"
  },
  {
-  "test": "orders load",
-  "message": "Error: expect(locator).toHaveText(expected) failed\n\nLocator: locator('#status')\nExpected pattern: /Готово/\nReceived string:  \"Загрузка…\"\nTimeout: 900ms"
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 0"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 1"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 0"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 2"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 0"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 1"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 1"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 2"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 0"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 1"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 0"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 1"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 0"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 0"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 2"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 0"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 1"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 0"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 0"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 1"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 2"
  },
  {
   "test": "three orders shown",
@@ -69,7 +169,47 @@
  },
  {
   "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 2"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 2"
+ },
+ {
+  "test": "three orders shown",
   "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 0"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 1"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 2"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 1"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 1"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 2"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 2"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 0"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 1"
  },
  {
   "test": "three orders shown",
@@ -81,7 +221,59 @@
  },
  {
   "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 2"
+ },
+ {
+  "test": "three orders shown",
   "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 0"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 1"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 1"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 1"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 0"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 1"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 0"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 1"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 0"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 1"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 1"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 2"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 1"
  },
  {
   "test": "three orders shown",
@@ -93,7 +285,11 @@
  },
  {
   "test": "three orders shown",
-  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 0"
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 1"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 1"
  },
  {
   "test": "three orders shown",
@@ -105,7 +301,15 @@
  },
  {
   "test": "three orders shown",
-  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 0"
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 1"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 2"
+ },
+ {
+  "test": "three orders shown",
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 2"
  },
  {
   "test": "three orders shown",
@@ -113,7 +317,7 @@
  },
  {
   "test": "three orders shown",
-  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 0"
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 2"
  },
  {
   "test": "three orders shown",
@@ -121,58 +325,18 @@
  },
  {
   "test": "three orders shown",
-  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 0"
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 2"
  },
  {
   "test": "three orders shown",
-  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 0"
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 2"
  },
  {
   "test": "three orders shown",
-  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 0"
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 2"
  },
  {
   "test": "three orders shown",
-  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 0"
- },
- {
-  "test": "three orders shown",
-  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 0"
- },
- {
-  "test": "three orders shown",
-  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 0"
- },
- {
-  "test": "three orders shown",
-  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 0"
- },
- {
-  "test": "three orders shown",
-  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 0"
- },
- {
-  "test": "three orders shown",
-  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 0"
- },
- {
-  "test": "three orders shown",
-  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 0"
- },
- {
-  "test": "three orders shown",
-  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 0"
- },
- {
-  "test": "three orders shown",
-  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 0"
- },
- {
-  "test": "three orders shown",
-  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 0"
- },
- {
-  "test": "three orders shown",
-  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 0"
+  "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 2"
  }
 ]

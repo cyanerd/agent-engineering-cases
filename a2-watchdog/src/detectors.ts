@@ -53,21 +53,25 @@ export const rerun = (opts: { k: number; quarantine?: { rate: number; window: nu
  * log-likelihood ratio of "rate jumped to p1" vs "rate is p0" raises a signal when it crosses `threshold`.
  * After a signal the scenario stays muted until it passes again (one signal per incident).
  */
-export const windowStats = (opts: { threshold: number }): Detector => (h) => {
+export const windowStats = (opts: { threshold: number; window?: number; skipRecent?: number }): Detector => (h) => {
+  const W = opts.window ?? 63;
+  const skip = opts.skipRecent ?? 6;
   const alerts: Alert[] = [];
   const S = h.scenarios.length;
-  const fails = new Array<number>(S).fill(0);
-  const total = new Array<number>(S).fill(0);
+  const past: boolean[][] = Array.from({ length: S }, () => []);
   const cusum = new Array<number>(S).fill(0);
   const muted = new Array<boolean>(S).fill(false);
   for (let t = 0; t < h.runs.length; t++) {
     for (const r of h.runs[t]!) {
       const s = r.scenario;
-      const p0 = Math.min(0.5, Math.max(0.02, (fails[s]! + 1) / (total[s]! + 2)));
+      // Baseline from a sliding window that leaves out the most recent runs, so an ongoing breakage
+      // does not raise its own baseline.
+      const base = past[s]!.slice(-(W + skip), past[s]!.length - skip > 0 ? past[s]!.length - skip : 0);
+      const fails = base.filter((ok) => !ok).length;
+      const p0 = Math.min(0.5, Math.max(0.02, (fails + 1) / (base.length + 2)));
       const p1 = Math.min(0.95, Math.max(0.5, 3 * p0));
       cusum[s] = Math.max(0, cusum[s]! + (r.ok ? Math.log((1 - p1) / (1 - p0)) : Math.log(p1 / p0)));
-      total[s]!++;
-      if (!r.ok) fails[s]!++;
+      past[s]!.push(r.ok);
       if (r.ok) muted[s] = false;
       if (!muted[s] && cusum[s]! >= opts.threshold) {
         alerts.push({ scenario: s, t });

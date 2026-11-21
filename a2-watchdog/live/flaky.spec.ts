@@ -6,7 +6,8 @@ const APP = new URL('./app.html', import.meta.url).href;
 test('orders load', async ({ page }) => {
   await page.goto(APP);
   await page.click('#load');
-  await expect(page.locator('#status')).toHaveText(/Готово/, { timeout: 900 });
+  // Timeouts differ between suites and environments; the message differs with them.
+  await expect(page.locator('#status')).toHaveText(/Готово/, { timeout: 800 + Math.floor(Math.random() * 4) * 100 });
 });
 
 // Typical flaky test #2: reads the list once instead of waiting for it (race between test and UI).

@@ -15,11 +15,11 @@ describe('generateHistory', () => {
     expect(generateHistory(2).episodes).not.toEqual(a.episodes);
   });
 
-  it('has 30 scenarios x 3 runs a day x 4 weeks, and episodes of all three kinds', () => {
+  it('has 30 scenarios x 3 runs a day x 4 weeks, and episodes of all four kinds', () => {
     const h = generateHistory(1);
     expect(h.scenarios).toHaveLength(30);
     expect(h.runs).toHaveLength(4 * RUNS_PER_WEEK);
-    expect(new Set(h.episodes.map((e) => e.kind))).toEqual(new Set(['stable', 'intermittent', 'disguised']));
+    expect(new Set(h.episodes.map((e) => e.kind))).toEqual(new Set(['stable', 'intermittent', 'disguised', 'degradation']));
   });
 
   it('calibration: "red on any failure" gives ~40 signals a week, ~30 of them flaky (median over 20 seeds)', () => {

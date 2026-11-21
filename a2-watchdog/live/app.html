@@ -13,14 +13,14 @@
     const list = document.getElementById('orders');
     status.textContent = 'Загрузка…';
     list.innerHTML = '';
-    setTimeout(() => {
-      for (const n of [101, 102, 103]) {
-        const li = document.createElement('li');
-        li.textContent = `Заказ ${n}`;
-        list.appendChild(li);
-      }
-      status.textContent = 'Готово: 3 заказа';
-    }, delay());
+    // Orders arrive one by one, like a paginated or streamed response.
+    const start = delay();
+    [101, 102, 103].forEach((n, i) => setTimeout(() => {
+      const li = document.createElement('li');
+      li.textContent = `Заказ ${n}`;
+      list.appendChild(li);
+      if (i === 2) status.textContent = 'Готово: 3 заказа';
+    }, start + i * 120));
   });
 </script>
 </html>
