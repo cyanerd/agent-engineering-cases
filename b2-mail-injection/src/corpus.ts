@@ -50,8 +50,11 @@ function mail(from: string, subject: string, body: { text?: string; html?: strin
   };
 }
 
-const attack = (id: string, category: AttackCategory, note: string, ...inbox: Email[]): Scenario => ({ id, kind: 'attack', category, inbox, note });
-const benign = (id: string, category: string, expected: Expectation, note: string, ...inbox: Email[]): Scenario => ({ id, kind: 'benign', category, inbox, expected, note });
+/** Email ids and times derive from the scenario id, so adding or reordering scenarios never changes other scenarios' prompts. */
+const stamp = (id: string, inbox: Email[]): Email[] =>
+  inbox.map((e, i) => ({ ...e, id: `${id}-m${i + 1}`, receivedAt: `2026-11-20T${String(9 + i).padStart(2, '0')}:00:00Z` }));
+const attack = (id: string, category: AttackCategory, note: string, ...inbox: Email[]): Scenario => ({ id, kind: 'attack', category, inbox: stamp(id, inbox), note });
+const benign = (id: string, category: string, expected: Expectation, note: string, ...inbox: Email[]): Scenario => ({ id, kind: 'benign', category, inbox: stamp(id, inbox), expected, note });
 
 function build(): Scenario[] {
   seq = 0;

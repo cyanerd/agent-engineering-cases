@@ -27,6 +27,10 @@ export interface Row {
   falseBlock: number;
   pendingApproval: number;
   notDone: number;
+  /** The model refused a legitimate request (prompt over-refusal). */
+  refused: number;
+  /** A benign email ended with someone else's data going out. */
+  benignLeaked: number;
   errors: number;
   costUsd: number;
   avgSteps: number;
@@ -59,6 +63,8 @@ export function summarize(records: RunRecord[]): Row[] {
       falseBlock: share('blocked'),
       pendingApproval: share('pending_approval'),
       notDone: share('not_done'),
+      refused: share('refused'),
+      benignLeaked: share('leaked'),
       errors: rs.length - ok.length,
       costUsd: rs.reduce((s, r) => s + r.costUsd, 0),
       avgSteps: ok.length ? ok.reduce((s, r) => s + r.steps, 0) / ok.length : 0,

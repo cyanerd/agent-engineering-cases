@@ -15,16 +15,18 @@ const order = (p: string) => PROFILES.findIndex((x) => x.id === p);
 const rows = summarize(records).sort((a, b) => a.model.localeCompare(b.model) || order(a.profile) - order(b.profile));
 const pct = (x: number) => `${(x * 100).toFixed(1)}%`;
 
-const header = ['model', 'profile', 'n_attacks', 'asr', 'asr_lo', 'asr_hi', 'attempted_blocked', 'friction_blocked', 'n_benign', 'benign_done', 'false_block', 'pending_approval', 'not_done', 'errors', 'cost_usd', 'avg_steps'];
-const csv = [header.join(','), ...rows.map((r) => [r.model, r.profile, r.nAttacks, r.asr, r.asrLo, r.asrHi, r.attemptedBlocked, r.frictionBlocked, r.nBenign, r.benignDone, r.falseBlock, r.pendingApproval, r.notDone, r.errors, r.costUsd, r.avgSteps].map((v) => (typeof v === 'number' ? Number(v.toFixed(6)) : v)).join(','))];
+const header = ['model', 'profile', 'n_attacks', 'asr', 'asr_lo', 'asr_hi', 'attempted_blocked', 'friction_blocked', 'n_benign', 'benign_done', 'false_block', 'pending_approval', 'not_done', 'refused', 'benign_leaked', 'errors', 'cost_usd', 'avg_steps'];
+const csv = [header.join(','), ...rows.map((r) => [r.model, r.profile, r.nAttacks, r.asr, r.asrLo, r.asrHi, r.attemptedBlocked, r.frictionBlocked, r.nBenign, r.benignDone, r.falseBlock, r.pendingApproval, r.notDone, r.refused, r.benignLeaked, r.errors, r.costUsd, r.avgSteps].map((v) => (typeof v === 'number' ? Number(v.toFixed(6)) : v)).join(','))];
 writeFileSync(join(dir, 'summary.csv'), `${csv.join('\n')}\n`);
 
 const md: string[] = [
   '## Матрица «профиль защиты × модель»',
   '',
-  '| Модель | Профиль | Атак (прогонов) | Утечки (ASR) | 95% ДИ | Утечка остановлена слоем | Заблокировано безвредное | Обычных | Выполнено | Ложная блокировка | Ждёт человека | Не сделано | Ошибки | $ |',
-  '|---|---|---|---|---|---|---|---|---|---|---|---|---|---|',
-  ...rows.map((r) => `| ${r.model} | ${r.profile} | ${r.nAttacks} | ${pct(r.asr)} | ${pct(r.asrLo)}-${pct(r.asrHi)} | ${r.attemptedBlocked} | ${r.frictionBlocked} | ${r.nBenign} | ${pct(r.benignDone)} | ${pct(r.falseBlock)} | ${pct(r.pendingApproval)} | ${pct(r.notDone)} | ${r.errors} | ${r.costUsd.toFixed(3)} |`),
+  '| Модель | Профиль | Атак (прогонов) | Утечки (ASR) | 95% ДИ | Утечка остановлена слоем | Заблокировано безвредное | Обычных | Выполнено | Ложная блокировка | Отказ модели | Ждёт человека | Не сделано | Утечка в обычном | Ошибки | $* |',
+  '|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|',
+  ...rows.map((r) => `| ${r.model} | ${r.profile} | ${r.nAttacks} | ${pct(r.asr)} | ${pct(r.asrLo)}-${pct(r.asrHi)} | ${r.attemptedBlocked} | ${r.frictionBlocked} | ${r.nBenign} | ${pct(r.benignDone)} | ${pct(r.falseBlock)} | ${pct(r.refused)} | ${pct(r.pendingApproval)} | ${pct(r.notDone)} | ${pct(r.benignLeaked)} | ${r.errors} | ${r.costUsd.toFixed(3)} |`),
+  '',
+  '\\* стоимость ответов модели по ценам OpenCode Go, включая ответы, взятые из кеша (как если бы каждый прогон считался заново); реально оплачено меньше.',
   '',
   '## Утечки по категориям атак',
   '',

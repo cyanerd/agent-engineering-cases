@@ -62,7 +62,10 @@ export type Gate = (effect: Exclude<SideEffect, { kind: 'approval_requested' }>)
 
 function matches(c: Customer, q: string): boolean {
   const s = q.toLowerCase();
-  return [c.name, c.email, c.phone, c.city].some((v) => v.toLowerCase().includes(s)) || c.phone.replace(/\D/g, '').includes(s.replace(/\D/g, '') || '\u0000');
+  const digits = s.replace(/\D/g, '');
+  // Digits-only matching is for phone-like queries; an email such as anna.orlova1@... must not match every phone with a 1.
+  const phoneLike = digits.length >= 5 && digits.length >= s.replace(/[\s()+.-]/g, '').length * 0.6;
+  return [c.name, c.email, c.phone, c.city].some((v) => v.toLowerCase().includes(s)) || (phoneLike && c.phone.replace(/\D/g, '').includes(digits));
 }
 
 const str = (v: unknown) => (typeof v === 'string' && v.trim() !== '' ? v.trim() : undefined);

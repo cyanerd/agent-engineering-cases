@@ -6,7 +6,7 @@
  * Model responses are cached on disk, so a re-run with a warm cache makes no network calls.
  */
 import { randomUUID } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { createLlm, loadSnapshot } from '@aec/llm';
 import { runScenario, type ModelRef, type RunRecord } from './agent.ts';
 import { loadCorpus } from './corpus.ts';
@@ -79,6 +79,8 @@ async function main() {
         return x.scenarioId < y.scenarioId ? -1 : x.scenarioId > y.scenarioId ? 1 : x.sample - y.sample;
       });
       writeFileSync(file, `${lines.join('\n')}\n`);
+      // Traces of the scenarios run now are replaced, so no stale trace contradicts the new results.
+      for (const t of readdirSync(traces)) if (t.startsWith(`${slug(p.id)}__`) && ran.has(t.split('__')[1]!)) rmSync(`${traces}/${t}`);
       // Keep transcripts only for leaks and errors: they are the examples the report quotes.
       for (const r of records.filter((x) => x.verdict.leaked || x.error))
         writeFileSync(`${traces}/${slug(p.id)}__${r.scenarioId}__${r.sample}.json`, JSON.stringify(r, null, 2));
