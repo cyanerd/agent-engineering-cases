@@ -54,12 +54,16 @@ const BREAKS = [
   (r: number) => `Error: locator('[data-test=${pick(['submit', 'pay', 'next'], r)}]') resolved to 0 elements`,
 ];
 
-export function timeoutMessage(r1: number, r2: number): string {
-  return `Timeout ${pick([5000, 10000, 15000, 30000], r1)}ms exceeded waiting for locator('#result-${Math.floor(r2 * 0xffffff).toString(16).padStart(6, '0')}')`;
+/**
+ * Flake messages follow what Playwright actually printed in live/ (results/live-failures.json): a wait shorter
+ * than the backend tail, and a read that races the UI. Only the variable parts (timeout, counts) change.
+ */
+export function timeoutMessage(r1: number, _r2: number): string {
+  return `Error: expect(locator).toHaveText(expected) failed\n\nLocator: locator('#status')\nExpected pattern: /Готово/\nReceived string:  "Загрузка…"\nTimeout: ${pick([900, 5000, 10000, 15000], r1)}ms`;
 }
 function flakeMessage(cause: Exclude<Cause, 'break'>, r1: number, r2: number): string {
   if (cause === 'flake-timeout') return timeoutMessage(r1, r2);
-  if (cause === 'flake-data') return `Error: expected ${3 + Math.floor(r1 * 3)} items in the list, got ${2 + Math.floor(r1 * 3)}`;
+  if (cause === 'flake-data') return `Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: ${Math.floor(r1 * 3)}`;
   return `Error: ${pick(['502 Bad Gateway', '503 Service Unavailable', 'ECONNRESET'], r1)} from payments-sandbox (request id ${Math.floor(r2 * 0xffffffff).toString(16)})`;
 }
 

@@ -9,5 +9,8 @@
     "compare": "tsx src/compare.ts",
     "live": "playwright test -c live/playwright.config.ts",
     "case": "tsx src/compare.ts"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.1"
   }
 }

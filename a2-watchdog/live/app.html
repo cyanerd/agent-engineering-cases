@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8" />
+<title>Заказы</title>
+<button id="load">Загрузить</button>
+<p id="status"></p>
+<ul id="orders"></ul>
+<script>
+  // Latency with a long tail, like a real backend: usually 100-600 ms, sometimes 1-2.5 s.
+  const delay = () => (Math.random() < 0.85 ? 100 + Math.random() * 500 : 1000 + Math.random() * 1500);
+  document.getElementById('load').addEventListener('click', () => {
+    const status = document.getElementById('status');
+    const list = document.getElementById('orders');
+    status.textContent = 'Загрузка…';
+    list.innerHTML = '';
+    setTimeout(() => {
+      for (const n of [101, 102, 103]) {
+        const li = document.createElement('li');
+        li.textContent = `Заказ ${n}`;
+        list.appendChild(li);
+      }
+      status.textContent = 'Готово: 3 заказа';
+    }, delay());
+  });
+</script>
+</html>
