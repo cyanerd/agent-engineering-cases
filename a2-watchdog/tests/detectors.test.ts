@@ -76,6 +76,16 @@ describe('fingerprints, then rerun for known signatures', () => {
     const h = mini([fail(0, 0, TIMEOUT), fail(0, 1, TIMEOUT), fail(0, 2, TIMEOUT)], (t, k) => (t === 2 ? fail(0, t, TIMEOUT, k) : ok(0, t, k)));
     expect(fingerprintsThenRerun({ k: 1, warmupUntil: 1 })(h)).toEqual({ alerts: [{ scenario: 0, t: 2 }], extraRuns: 2 });
   });
+  it('with k=2 a known signature that passes on the second rerun is a flake: two extra runs, no signal', () => {
+    const h = mini([fail(0, 0, TIMEOUT), fail(0, 1, TIMEOUT)], (t, k) => (k === 1 ? fail(0, t, TIMEOUT, k) : ok(0, t, k)));
+    expect(fingerprintsThenRerun({ k: 2, warmupUntil: 1 })(h)).toEqual({ alerts: [], extraRuns: 2 });
+  });
+  it('a new signature during warm-up is learned without a rerun', () => {
+    let reruns = 0;
+    const h = mini([fail(0, 0, BREAK)], (t, k) => (reruns++, ok(0, t, k)));
+    fingerprintsThenRerun({ k: 2, warmupUntil: 5 })(h);
+    expect(reruns).toBe(0);
+  });
   it('signatures seen during warm-up are learned silently', () => {
     const h = mini([fail(0, 0, TIMEOUT), ok(0, 1)], (t, k) => ok(0, t, k));
     expect(fingerprintsThenRerun({ k: 1, warmupUntil: 1 })(h)).toEqual({ alerts: [], extraRuns: 0 });

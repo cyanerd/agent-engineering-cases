@@ -6,6 +6,7 @@
  */
 import { writeFileSync } from 'node:fs';
 import { anyFailure, fingerprints, fingerprintsThenRerun, rerun, windowStats, type Detector } from './detectors.ts';
+import { pairedDiff } from './paired.ts';
 import { evaluate, type Alert, type Evaluation } from './evaluate.ts';
 import { generateHistory, RUNS_PER_WEEK, type EpisodeKind, type History, type HistoryOptions } from './history.ts';
 
@@ -151,6 +152,24 @@ const rows: Row[] = [...byMechanism.values()].map(({ c }) => {
   };
 });
 
+// Paired check of the two leading mechanisms, per history, on the base seeds and on 100 new seeds never used
+// for tuning. Total cost at the tuning run cost, and the cost without runs (false alerts + misses only).
+const A_NAME = '1 + 2. Перепрогон + статистика';
+const B_NAME = '3 + 2. Отпечатки + статистика';
+const lead = (name: string) => byMechanism.get(name)!;
+const NEW_SEEDS = Array.from({ length: 100 }, (_, i) => i + 1001);
+const pairedOn = (seeds: number[], label: string) => {
+  histories = seeds.map((s) => generateHistory(s));
+  const ra = run(lead(A_NAME).c, 'test');
+  const rb = run(lead(B_NAME).c, 'test');
+  const extra = ra.reduce((x, r) => x + r.extraPerWeek, 0) / ra.length - rb.reduce((x, r) => x + r.extraPerWeek, 0) / rb.length;
+  const withRuns = pairedDiff(ra.map((r) => costOne(r, TEST)), rb.map((r) => costOne(r, TEST)));
+  const noRuns = pairedDiff(ra.map((r) => costOne(r, TEST, false)), rb.map((r) => costOne(r, TEST, false)));
+  return { label, withRuns, noRuns, extraRunsDiff: extra, breakEven: -noRuns.mean / extra, breakEvenRange: [-(noRuns.mean + noRuns.half) / extra, -(noRuns.mean - noRuns.half) / extra] };
+};
+const paired = [pairedOn(SEEDS, 'истории 1-100 (основные)'), pairedOn(NEW_SEEDS, 'истории 1001-1100 (новые)')];
+histories = SEEDS.map((s) => generateHistory(s));
+
 // Sensitivity: the tuned parameters, other mixes of breakage. Which mechanism has the lowest test cost?
 const chosen = [...byMechanism.values()].filter(({ c }) => !c.mechanism.startsWith('База'));
 const sweeps: { label: string; opts: HistoryOptions }[] = [
@@ -195,6 +214,12 @@ const md = [
   `|---|${contenders.map(() => '---').join('|')}|---|`,
   ...runCostRows.map((x) => `| ${x.c} | ${x.costs.map((c) => c.cost.toFixed(1)).join(' | ')} | ${x.best} |`),
   '',
+  `## «1 + 2» против «3 + 2» парно, по историям (цена на неделях 3-4; на train: ${lead(A_NAME).trainCost.toFixed(1)} против ${lead(B_NAME).trainCost.toFixed(1)})`,
+  '',
+  '| Истории | Разница цены при прогоне 0.05, среднее ± 95% | «1 + 2» дешевле, историй | Разница без учёта прогонов (ложные + пропуски) | Лишних прогонов в неделю у «1 + 2» сверх «3 + 2» | Точка безразличия: цена прогона [95%] |',
+  '|---|---|---|---|---|---|',
+  ...paired.map((x) => `| ${x.label} | ${x.withRuns.mean.toFixed(2)} ± ${x.withRuns.half.toFixed(2)} | ${x.withRuns.aWins}/100 | ${x.noRuns.mean.toFixed(2)} ± ${x.noRuns.half.toFixed(2)} | ${x.extraRunsDiff.toFixed(1)} | ${x.breakEven.toFixed(3)} [${x.breakEvenRange[0]!.toFixed(3)}-${x.breakEvenRange[1]!.toFixed(3)}] |`),
+  '',
   '## Чувствительность к составу поломок (параметры подобраны на базовом составе, цена на test)',
   '',
   `| Состав | ${chosen.map(({ c }) => c.mechanism).join(' | ')} | Лучшая |`,
@@ -212,5 +237,5 @@ const md = [
   '',
 ];
 writeFileSync(new URL('../results/summary.md', import.meta.url), md.join('\n'));
-writeFileSync(new URL('../results/summary.json', import.meta.url), `${JSON.stringify({ rows, grid, sensitivity }, null, 2)}\n`);
+writeFileSync(new URL('../results/summary.json', import.meta.url), `${JSON.stringify({ rows, grid, sensitivity, runCostRows, paired }, null, 2)}\n`);
 console.log(md.slice(0, rows.length + 16).join('\n'));
