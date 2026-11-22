@@ -27,6 +27,12 @@ importers:
         specifier: 1.65.1
         version: 1.65.1
 
+  a3-router:
+    dependencies:
+      '@aec/llm':
+        specifier: workspace:*
+        version: link:../packages/llm
+
   b1-phone-orgs:
     dependencies:
       jose:

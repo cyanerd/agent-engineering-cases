@@ -59,6 +59,17 @@ describe('createLlm', () => {
     expect(new Headers(calls[0]!.init.headers).get('authorization')).toBeNull();
   });
 
+  it('sends reasoningEffort as reasoning_effort and keeps it in the cache key', async () => {
+    const { calls, fetchImpl } = stubFetch([ok(), ok()]);
+    const llm = createLlm({ cacheDir, fetchImpl, prices, retryDelayMs: 0 });
+    const q = { ...req, provider: 'ollama' as const, model: 'qwen3:8b' };
+    await llm.chat({ ...q, reasoningEffort: 'none' });
+    expect(JSON.parse(String(calls[0]!.init.body))).toMatchObject({ reasoning_effort: 'none' });
+    await llm.chat(q);
+    expect(calls).toHaveLength(2);
+    expect(JSON.parse(String(calls[1]!.init.body))).not.toHaveProperty('reasoning_effort');
+  });
+
   it('maps usage, computes cost, second identical call is served from cache', async () => {
     const { calls, fetchImpl } = stubFetch([ok()]);
     const llm = createLlm({ cacheDir, fetchImpl, prices, retryDelayMs: 0, now: () => new Date('2026-11-21T12:00:00Z') });

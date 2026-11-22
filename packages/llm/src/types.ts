@@ -30,6 +30,8 @@ export interface ChatRequest {
   temperature?: number;
   maxTokens?: number;
   responseFormat?: { type: 'json_object' } | { type: 'json_schema'; json_schema: unknown };
+  /** Sent as reasoning_effort. 'none' turns off the thinking trace of reasoning models on Ollama (qwen3). */
+  reasoningEffort?: 'none' | 'low' | 'medium' | 'high';
   /** Part of the cache key only: lets a caller take N independent samples of the same request. */
   sample?: number;
 }
