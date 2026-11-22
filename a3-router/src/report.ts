@@ -1,5 +1,6 @@
 /**
- * Builds results/summary.md, results/policies.csv and results/frontier.svg from results/answers.jsonl.
+ * Builds results/summary.md, results/policies.csv and results/frontier.svg from results/answers.jsonl
+ * (cheap tier qwen3:8b-nothink; A3_CHEAP=qwen3:8b writes the -qwen3_8b variants for the thinking tier).
  * Everything that is tuned (type rule, cascade configuration) is chosen on train; test is used once.
  */
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -8,7 +9,10 @@ import { agreement, allCheap, allExpensive, buildTable, byType, cascade, evaluat
 import { pairedBootstrap } from './stats.ts';
 import { loadTasks, type TaskType } from './tasks/index.ts';
 
-const CHEAP = process.env.A3_CHEAP ?? 'qwen3:8b';
+const DEFAULT_CHEAP = 'qwen3:8b-nothink';
+const CHEAP = process.env.A3_CHEAP ?? DEFAULT_CHEAP;
+/** Another cheap tier writes its own files: summary-<model>.md etc. */
+const SUFFIX = CHEAP === DEFAULT_CHEAP ? '' : `-${CHEAP.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
 const EXPENSIVE = process.env.A3_EXPENSIVE ?? 'deepseek-v4-pro';
 /** Non-inferiority margin, fixed before looking at test. */
 const DELTA = 0.02;
@@ -86,7 +90,7 @@ if (chosen) {
 
 // 6. Frontier: every cascade configuration, train vs test.
 const csv = ['config,train_accuracy,train_expensive_share,test_accuracy,test_expensive_share,test_cost_per_1000_usd', ...scored.map((s) => [JSON.stringify(label(s.c)), s.tr.accuracy, s.tr.expensiveShare, s.te.accuracy, s.te.expensiveShare, s.te.costPer1000Usd].join(','))];
-writeFileSync(new URL('policies.csv', dir), `${csv.join('\n')}\n`);
+writeFileSync(new URL(`policies${SUFFIX}.csv`, dir), `${csv.join('\n')}\n`);
 
 const W = 640, H = 360, P = 48;
 const x = (share: number) => P + share * (W - 2 * P);
@@ -102,8 +106,8 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" 
 <text x="${P}" y="${H - P + 16}" font-size="10" text-anchor="middle">0%</text><text x="${W - P}" y="${H - P + 16}" font-size="10" text-anchor="middle">100%</text>
 <text x="${P - 6}" y="${y(yMin) + 4}" font-size="10" text-anchor="end">${pct(yMin)}</text><text x="${P - 6}" y="${y(yMax) + 4}" font-size="10" text-anchor="end">${pct(yMax)}</text>
 ${dots}${marks}</svg>`;
-writeFileSync(new URL('frontier.svg', dir), svg);
-md.push('## Кривая «доля на дорогую → качество»', '', `Серые точки - все ${grid.length} конфигураций каскада на test; цветные - политики из таблицы. Файл: \`results/frontier.svg\`, все точки - \`results/policies.csv\`.`, '', '![frontier](frontier.svg)', '');
+writeFileSync(new URL(`frontier${SUFFIX}.svg`, dir), svg);
+md.push('## Кривая «доля на дорогую → качество»', '', `Серые точки - все ${grid.length} конфигураций каскада на test; цветные - политики из таблицы. Файл: \`results/frontier${SUFFIX}.svg\`, все точки - \`results/policies${SUFFIX}.csv\`.`, '', `![frontier](frontier${SUFFIX}.svg)`, '');
 
-writeFileSync(new URL('summary.md', dir), md.join('\n'));
+writeFileSync(new URL(`summary${SUFFIX}.md`, dir), md.join('\n'));
 console.log(md.join('\n'));
