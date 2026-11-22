@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Банк</string>
+    <string name="title_activity_main">Банк</string>
+    <string name="package_name">example.aec.bank</string>
+    <string name="custom_url_scheme">example.aec.bank</string>
+</resources>

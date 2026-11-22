@@ -1,0 +1,38 @@
+name: b1-phone-orgs
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: app
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app-stand-only
+    ports: ["15432:5432"]
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d app"]
+      interval: 2s
+      retries: 30
+  keycloak:
+    image: ${KEYCLOAK_IMAGE:-quay.io/keycloak/keycloak:26.8.2@sha256:7e66a96e4739239070aeaf72e4c5decf0f7f682cfc725b9f7ea2b336eaba38b3}
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://db:5432/keycloak
+      KC_DB_USERNAME: app
+      KC_DB_PASSWORD: app-stand-only
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin-stand-only
+      KC_HEALTH_ENABLED: "true"
+      KC_HTTP_PORT: "8080"
+      SMS_STUB_OUTBOX: "true"
+      SMS_CODE_TTL_SECONDS: ${SMS_CODE_TTL_SECONDS:-15}
+      SMS_WINDOW_SECONDS: ${SMS_WINDOW_SECONDS:-20}
+      SMS_IP_LIMIT: ${SMS_IP_LIMIT:-120}
+    ports: ["18080:8080", "19000:9000"]
+    volumes:
+      - ./keycloak:/opt/keycloak/data/import:ro
+      - ./keycloak-sms/target/keycloak-sms.jar:/opt/keycloak/providers/keycloak-sms.jar:ro
+    depends_on:
+      db:
+        condition: service_healthy
