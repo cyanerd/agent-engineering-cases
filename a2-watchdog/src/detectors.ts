@@ -102,3 +102,33 @@ export const fingerprints = (opts: { warmupUntil?: number }): Detector => (h) =>
   }
   return { alerts, extraRuns: 0 };
 };
+
+/**
+ * Mechanisms 3 + 1. A failure with a signature never seen before is a signal right away, with no rerun.
+ * A failure with a known signature is rerun up to k times; a signal only if every attempt fails.
+ * Signatures seen before `warmupUntil` are learned without signalling.
+ */
+export const fingerprintsThenRerun = (opts: { k: number; warmupUntil?: number }): Detector => (h) => {
+  const alerts: Alert[] = [];
+  const known = new Set<string>();
+  let extraRuns = 0;
+  for (let t = 0; t < h.runs.length; t++) {
+    for (const r of h.runs[t]!) {
+      if (r.ok) continue;
+      const live = t >= (opts.warmupUntil ?? 0);
+      const sig = `${r.scenario}#${fingerprint(r)}`;
+      if (!known.has(sig)) {
+        known.add(sig);
+        if (live) alerts.push({ scenario: r.scenario, t });
+        continue;
+      }
+      let passed = false;
+      for (let k = 1; k <= opts.k && !passed; k++) {
+        extraRuns++;
+        passed = h.rerun(r.scenario, t, k).ok;
+      }
+      if (!passed && live) alerts.push({ scenario: r.scenario, t });
+    }
+  }
+  return { alerts, extraRuns };
+};

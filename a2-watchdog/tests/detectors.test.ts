@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { fingerprints, rerun, windowStats } from '../src/detectors.ts';
+import { fingerprints, fingerprintsThenRerun, rerun, windowStats } from '../src/detectors.ts';
 import type { Episode, History, Run } from '../src/history.ts';
 
 const ok = (s: number, t: number, attempt = 0): Run => ({ scenario: s, t, attempt, ok: true });
@@ -64,5 +64,20 @@ describe('fingerprints', () => {
   it('signatures learned during warm-up do not alert later', () => {
     const h = mini([fail(0, 0, TIMEOUT), ok(0, 1), fail(0, 2, TIMEOUT)], (t, k) => ok(0, t, k));
     expect(fingerprints({ warmupUntil: 2 })(h).alerts).toEqual([]);
+  });
+});
+
+describe('fingerprints, then rerun for known signatures', () => {
+  it('a new signature is a signal right away, without a rerun', () => {
+    const h = mini([ok(0, 0), fail(0, 1, BREAK)], (t, k) => ok(0, t, k));
+    expect(fingerprintsThenRerun({ k: 1 })(h)).toEqual({ alerts: [{ scenario: 0, t: 1 }], extraRuns: 0 });
+  });
+  it('a known signature is rerun: passes - no signal; keeps failing - signal', () => {
+    const h = mini([fail(0, 0, TIMEOUT), fail(0, 1, TIMEOUT), fail(0, 2, TIMEOUT)], (t, k) => (t === 2 ? fail(0, t, TIMEOUT, k) : ok(0, t, k)));
+    expect(fingerprintsThenRerun({ k: 1, warmupUntil: 1 })(h)).toEqual({ alerts: [{ scenario: 0, t: 2 }], extraRuns: 2 });
+  });
+  it('signatures seen during warm-up are learned silently', () => {
+    const h = mini([fail(0, 0, TIMEOUT), ok(0, 1)], (t, k) => ok(0, t, k));
+    expect(fingerprintsThenRerun({ k: 1, warmupUntil: 1 })(h)).toEqual({ alerts: [], extraRuns: 0 });
   });
 });

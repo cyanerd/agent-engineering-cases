@@ -16,6 +16,7 @@
       "falsePerWeekP90": 33,
       "alertsPerWeek": 42,
       "extraRunsPerWeek": 0,
+      "extraRunsMean": 0,
       "testCost": 28.485,
       "testCostP10": 23.5,
       "testCostP90": 33.5,
@@ -37,6 +38,7 @@
       "falsePerWeekP90": 6.5,
       "alertsPerWeek": 15,
       "extraRunsPerWeek": 42.25,
+      "extraRunsMean": 42.09,
       "testCost": 8.704500000000001,
       "testCostP10": 4.6875,
       "testCostP90": 13.85,
@@ -58,6 +60,7 @@
       "falsePerWeekP90": 8.5,
       "alertsPerWeek": 10,
       "extraRunsPerWeek": 0,
+      "extraRunsMean": 0,
       "testCost": 9.07,
       "testCostP10": 4.5,
       "testCostP90": 14.5,
@@ -79,6 +82,7 @@
       "falsePerWeekP90": 5,
       "alertsPerWeek": 5.5,
       "extraRunsPerWeek": 0,
+      "extraRunsMean": 0,
       "testCost": 11.875,
       "testCostP10": 7,
       "testCostP90": 18,
@@ -100,10 +104,55 @@
       "falsePerWeekP90": 6.5,
       "alertsPerWeek": 10,
       "extraRunsPerWeek": 0,
+      "extraRunsMean": 0,
       "testCost": 7.77,
       "testCostP10": 3.5,
       "testCostP90": 12,
       "testCostNoRuns": 7.77
+    },
+    {
+      "mechanism": "3 + 1. Отпечатки, знакомые - перепрогон",
+      "label": "k=2",
+      "recall": 0.9292763157894737,
+      "recallByKind": {
+        "stable": "283/283",
+        "intermittent": "139/140",
+        "disguised": "98/98",
+        "degradation": "45/87"
+      },
+      "medianHours": 0,
+      "falsePerWeekMed": 4,
+      "falsePerWeekP10": 2.5,
+      "falsePerWeekP90": 6,
+      "alertsPerWeek": 14,
+      "extraRunsPerWeek": 44.75,
+      "extraRunsMean": 45.2775,
+      "testCost": 8.593875000000002,
+      "testCostP10": 5.1375,
+      "testCostP90": 12.9,
+      "testCostNoRuns": 6.33
+    },
+    {
+      "mechanism": "1 + 2. Перепрогон + статистика",
+      "label": "k=2, CUSUM порог 4",
+      "recall": 0.9144736842105263,
+      "recallByKind": {
+        "stable": "283/283",
+        "intermittent": "123/140",
+        "disguised": "98/98",
+        "degradation": "52/87"
+      },
+      "medianHours": 0,
+      "falsePerWeekMed": 2,
+      "falsePerWeekP10": 1,
+      "falsePerWeekP90": 3.5,
+      "alertsPerWeek": 12,
+      "extraRunsPerWeek": 57.25,
+      "extraRunsMean": 57.05,
+      "testCost": 7.587500000000003,
+      "testCostP10": 3.8875,
+      "testCostP90": 11.6625,
+      "testCostNoRuns": 4.735
     }
   ],
   "grid": [
@@ -221,6 +270,61 @@
       "mechanism": "3 + 2. Отпечатки + статистика",
       "label": "CUSUM порог 6",
       "trainCost": 15.66
+    },
+    {
+      "mechanism": "3 + 1. Отпечатки, знакомые - перепрогон",
+      "label": "k=1",
+      "trainCost": 16.5475
+    },
+    {
+      "mechanism": "3 + 1. Отпечатки, знакомые - перепрогон",
+      "label": "k=2",
+      "trainCost": 15.343875000000008
+    },
+    {
+      "mechanism": "3 + 1. Отпечатки, знакомые - перепрогон",
+      "label": "k=3",
+      "trainCost": 15.666625000000003
+    },
+    {
+      "mechanism": "1 + 2. Перепрогон + статистика",
+      "label": "k=1, CUSUM порог 3",
+      "trainCost": 10.704500000000003
+    },
+    {
+      "mechanism": "1 + 2. Перепрогон + статистика",
+      "label": "k=1, CUSUM порог 4",
+      "trainCost": 10.134500000000001
+    },
+    {
+      "mechanism": "1 + 2. Перепрогон + статистика",
+      "label": "k=1, CUSUM порог 5",
+      "trainCost": 10.159500000000001
+    },
+    {
+      "mechanism": "1 + 2. Перепрогон + статистика",
+      "label": "k=1, CUSUM порог 6",
+      "trainCost": 10.0645
+    },
+    {
+      "mechanism": "1 + 2. Перепрогон + статистика",
+      "label": "k=2, CUSUM порог 3",
+      "trainCost": 9.562500000000005
+    },
+    {
+      "mechanism": "1 + 2. Перепрогон + статистика",
+      "label": "k=2, CUSUM порог 4",
+      "trainCost": 9.307500000000005
+    },
+    {
+      "mechanism": "1 + 2. Перепрогон + статистика",
+      "label": "k=2, CUSUM порог 5",
+      "trainCost": 9.617500000000003
+    },
+    {
+      "mechanism": "1 + 2. Перепрогон + статистика",
+      "label": "k=2, CUSUM порог 6",
+      "trainCost": 9.777500000000003
     }
   ],
   "sensitivity": [
@@ -242,6 +346,14 @@
         {
           "mechanism": "3 + 2. Отпечатки + статистика",
           "cost": 7.77
+        },
+        {
+          "mechanism": "3 + 1. Отпечатки, знакомые - перепрогон",
+          "cost": 8.593875000000002
+        },
+        {
+          "mechanism": "1 + 2. Перепрогон + статистика",
+          "cost": 7.587500000000003
         }
       ]
     },
@@ -263,6 +375,14 @@
         {
           "mechanism": "3 + 2. Отпечатки + статистика",
           "cost": 7.16
+        },
+        {
+          "mechanism": "3 + 1. Отпечатки, знакомые - перепрогон",
+          "cost": 8.766625000000003
+        },
+        {
+          "mechanism": "1 + 2. Перепрогон + статистика",
+          "cost": 7.288875000000001
         }
       ]
     },
@@ -284,6 +404,14 @@
         {
           "mechanism": "3 + 2. Отпечатки + статистика",
           "cost": 8.935
+        },
+        {
+          "mechanism": "3 + 1. Отпечатки, знакомые - перепрогон",
+          "cost": 9.3715
+        },
+        {
+          "mechanism": "1 + 2. Перепрогон + статистика",
+          "cost": 8.642375000000001
         }
       ]
     },
@@ -305,6 +433,14 @@
         {
           "mechanism": "3 + 2. Отпечатки + статистика",
           "cost": 5.435
+        },
+        {
+          "mechanism": "3 + 1. Отпечатки, знакомые - перепрогон",
+          "cost": 6.51625
+        },
+        {
+          "mechanism": "1 + 2. Перепрогон + статистика",
+          "cost": 5.749250000000002
         }
       ]
     },
@@ -326,6 +462,14 @@
         {
           "mechanism": "3 + 2. Отпечатки + статистика",
           "cost": 10.845
+        },
+        {
+          "mechanism": "3 + 1. Отпечатки, знакомые - перепрогон",
+          "cost": 11.267375
+        },
+        {
+          "mechanism": "1 + 2. Перепрогон + статистика",
+          "cost": 10.120375000000001
         }
       ]
     },
@@ -347,6 +491,14 @@
         {
           "mechanism": "3 + 2. Отпечатки + статистика",
           "cost": 8.165
+        },
+        {
+          "mechanism": "3 + 1. Отпечатки, знакомые - перепрогон",
+          "cost": 8.949250000000003
+        },
+        {
+          "mechanism": "1 + 2. Перепрогон + статистика",
+          "cost": 9.726999999999999
         }
       ]
     },
@@ -368,6 +520,14 @@
         {
           "mechanism": "3 + 2. Отпечатки + статистика",
           "cost": 7.85
+        },
+        {
+          "mechanism": "3 + 1. Отпечатки, знакомые - перепрогон",
+          "cost": 8.678750000000003
+        },
+        {
+          "mechanism": "1 + 2. Перепрогон + статистика",
+          "cost": 7.060499999999999
         }
       ]
     }
