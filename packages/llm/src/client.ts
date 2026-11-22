@@ -5,6 +5,9 @@ import type { ChatMessage, ChatRequest, ChatResult, PriceTable } from './types.t
 
 export const OPENCODE_BASE_URL = 'https://opencode.ai/inference/go/openai/v1';
 const MAX_ATTEMPTS = 3;
+/** Rate limits are transient by design, so 429 gets more patience than server errors. */
+const MAX_ATTEMPTS_429 = 8;
+const MAX_BACKOFF_MS = 60_000;
 const USER_AGENT = 'agent-engineering-cases/0.1';
 
 export interface LlmOptions {
@@ -16,10 +19,12 @@ export interface LlmOptions {
   prices?: PriceTable;
   /** Base delay for exponential backoff between retries. */
   retryDelayMs?: number;
+  /** Injected for tests. */
+  sleep?: (ms: number) => Promise<void>;
 }
 
 export class LlmHttpError extends Error {
-  constructor(readonly status: number, body: string) {
+  constructor(readonly status: number, body: string, readonly retryAfterMs?: number) {
     super(`LLM HTTP ${status}: ${body.slice(0, 500)}`);
   }
 }
@@ -33,6 +38,7 @@ export function createLlm(opts: LlmOptions = {}) {
   const fetchImpl = opts.fetchImpl ?? fetch;
   const now = opts.now ?? (() => new Date());
   const retryDelayMs = opts.retryDelayMs ?? 1000;
+  const wait = opts.sleep ?? sleep;
   let pricesP: Promise<PriceTable> | undefined = opts.prices ? Promise.resolve(opts.prices) : undefined;
   const stats = { calls: 0, cachedCalls: 0, costUsd: 0 };
 
@@ -63,21 +69,26 @@ export function createLlm(opts: LlmOptions = {}) {
   async function post(req: ChatRequest): Promise<{ json: any; latencyMs: number }> {
     const { url, headers } = endpoint(req);
     let lastError: unknown;
-    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    for (let attempt = 1; ; attempt++) {
       const started = performance.now();
+      let retryAfterMs: number | undefined;
+      let limit = MAX_ATTEMPTS;
       try {
         const res = await fetchImpl(url, { method: 'POST', headers, body: body(req) });
         if (res.ok) return { json: await res.json(), latencyMs: Math.round(performance.now() - started) };
-        const err = new LlmHttpError(res.status, await res.text());
+        const ra = Number(res.headers.get('retry-after'));
+        retryAfterMs = Number.isFinite(ra) && ra > 0 ? ra * 1000 : undefined;
+        const err = new LlmHttpError(res.status, await res.text(), retryAfterMs);
         if (!retryable(res.status)) throw err;
+        if (res.status === 429) limit = MAX_ATTEMPTS_429;
         lastError = err;
       } catch (e) {
         if (e instanceof LlmHttpError && !retryable(e.status)) throw e;
-        lastError = e;
+        if (!(e instanceof LlmHttpError)) lastError = e;
       }
-      if (attempt < MAX_ATTEMPTS) await sleep(retryDelayMs * 2 ** (attempt - 1));
+      if (attempt >= limit) throw lastError;
+      await wait(retryAfterMs ?? Math.min(MAX_BACKOFF_MS, retryDelayMs * 2 ** (attempt - 1)));
     }
-    throw lastError;
   }
 
   async function chat(req: ChatRequest): Promise<ChatResult> {
