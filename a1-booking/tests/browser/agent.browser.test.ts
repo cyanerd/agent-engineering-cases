@@ -65,3 +65,35 @@ describe('agent in a real browser', () => {
     expect(snap).toMatch(/button "Место \d+, \d+ ₽[^"]*"[\s\S]*Ряд 12/);
   });
 });
+
+describe('harness', () => {
+  it('the snapshot never cuts off the clickable list: the cart link is present on every hall page of every layout', async () => {
+    const { snapshotText } = await import('../../src/agent.ts');
+    const { LAYOUTS } = await import('../../src/site/data.ts');
+    const page = await browser.newPage();
+    for (const layout of LAYOUTS)
+      for (const s of catalog().sessions) {
+        await page.goto(`${site.url}/session/${s.id}?run=trunc-${layout}&layout=${layout}`);
+        expect(await snapshotText(page), `${layout} ${s.id}`).toMatch(/\[ref=\d+\] link "Перейти в корзину"/);
+      }
+    await page.close();
+  }, 120_000);
+
+  it("the agent cannot pay through the site's own button: payment is only the pay tool", async () => {
+    const c = intents().find((x) => x.layout === 'main')!;
+    const s = catalog().sessions.find((x) => x.eventId === c.intent.eventId && x.date === c.intent.date && x.time === c.intent.time)!;
+    const seat = s.seats.find((x) => !x.taken && x.row >= c.intent.rowFrom && x.row <= c.intent.rowTo)!;
+    const esc = (x: string) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    await runAgent({
+      site, browser, c, mode: 'schema', sample: 0, model: { provider: 'ollama', model: 'stub' }, runId: 'stub-paybutton',
+      llm: scripted([
+        new RegExp(`link "${esc(c.intent.eventTitle)}"`),
+        new RegExp(`Выбрать сеанс" - ${esc(formatDate(s.date, 'main'))} \\| ${esc(s.time)}`),
+        new RegExp(`"Ряд ${seat.row}, место ${seat.seat}, ${seat.price} ₽"`),
+        /link "Перейти в корзину"/,
+        /button "Оплатить"/,
+      ]),
+    });
+    expect(site.order('stub-paybutton')).toBeUndefined();
+  });
+});

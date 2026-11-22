@@ -74,3 +74,19 @@ export function evaluateLadder(r: Recorded, step: Step): LadderResult {
   if (step >= 5) return { outcome: 'cancelled', asked, by: 'post-payment' };
   return { outcome: 'wrong_paid', asked };
 }
+
+export type Check = 'invariants' | 'cart' | 'human-threshold' | 'post-payment';
+/**
+ * Would this check, used alone, stop or undo the order? For the table "what each check catches by itself".
+ * The human at the threshold is modelled as reading the cart page: they catch what the page shows, only on carts
+ * above CONFIRM_ABOVE. The post-payment check compares the ticket (the server's record of what was charged) with
+ * the intent; on this stand the ticket is the order itself, which is an assumption, not a measurement.
+ */
+export function catchesAlone(r: Recorded, check: Check): boolean {
+  if (!r.paid) return false;
+  const total = r.order.items.reduce((a, x) => a + x.price, 0);
+  if (check === 'invariants') return !invariantsOk(r.order, r.intent);
+  if (check === 'cart') return !cartMatches(parseCartHtml(r.cartHtml), r.intent);
+  if (check === 'human-threshold') return total > CONFIRM_ABOVE && !cartMatches(parseCartHtml(r.cartHtml), r.intent);
+  return !judgeOrder(r.order, r.intent).ok;
+}

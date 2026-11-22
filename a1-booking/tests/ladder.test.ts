@@ -52,3 +52,25 @@ describe('ladder', () => {
     expect(evaluateLadder({ ...base, paid: false }, 3).outcome).toBe('not_done');
   });
 });
+
+describe('each check alone', () => {
+  const base = { intent: c.intent, cartHtml: html(good, 'main'), order: { items: good }, paid: true, mode: 'schema' as const };
+  it('a wrong session passes the invariants but not the cart reader nor the post-payment check', async () => {
+    const { catchesAlone } = await import('../src/ladder.ts');
+    const r = { ...base, cartHtml: html(wrong, 'main'), order: { items: wrong } };
+    expect(catchesAlone(r, 'invariants')).toBe(false);
+    expect(catchesAlone(r, 'cart')).toBe(true);
+    expect(catchesAlone(r, 'post-payment')).toBe(true);
+  });
+  it('the human at the threshold sees only expensive carts, and sees what the cart page shows', async () => {
+    const { catchesAlone } = await import('../src/ladder.ts');
+    const cheapWrong = wrong.map((w) => ({ ...w, price: 1000 }));
+    const dearWrong = wrong.map((w) => ({ ...w, price: 16000 }));
+    expect(catchesAlone({ ...base, cartHtml: html(cheapWrong, 'main'), order: { items: cheapWrong } }, 'human-threshold')).toBe(false);
+    expect(catchesAlone({ ...base, cartHtml: html(dearWrong, 'main'), order: { items: dearWrong } }, 'human-threshold')).toBe(true);
+  });
+  it('a correct order is caught by nothing', async () => {
+    const { catchesAlone } = await import('../src/ladder.ts');
+    for (const k of ['invariants', 'cart', 'human-threshold', 'post-payment'] as const) expect(catchesAlone(base, k), k).toBe(false);
+  });
+});

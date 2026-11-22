@@ -9,7 +9,7 @@ import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import type { AgentRun } from './agent.ts';
 import type { Intent } from './intent.ts';
 import { judgeOrder } from './judge.ts';
-import { evaluateLadder, STEPS, type Outcome, type Step } from './ladder.ts';
+import { catchesAlone, evaluateLadder, STEPS, type Check, type Outcome, type Step } from './ladder.ts';
 import type { Layout } from './site/data.ts';
 import type { Order } from './site/server.ts';
 
@@ -82,6 +82,19 @@ for (const model of [...new Set(recs.map((r) => r.model))].sort()) {
     for (const p of j.problems) m.set(p, (m.get(p) ?? 0) + 1);
     anatomy.set(key, m);
   }
+  // Each check used alone: how many of the wrong paid orders it catches, how many correct ones it would stop.
+  const paid = recs.filter((x) => x.model === model && x.paid && !x.error);
+  const wrongs = paid.filter((r) => !judgeOrder(r.order, r.intent).ok);
+  const rights = paid.filter((r) => judgeOrder(r.order, r.intent).ok);
+  const CHECKS: [Check, string][] = [['invariants', 'Инварианты'], ['cart', 'Чтение корзины'], ['human-threshold', 'Человек выше 15 000 ₽ (видит страницу корзины)'], ['post-payment', 'Сверка после оплаты (билет = заказ на сервере)']];
+  md.push(`Каждая проверка сама по себе (все прогоны, без пересчёта на 5%): из ${wrongs.length} неверных оплаченных заказов и ${rights.length} верных.`, '', '| Проверка | Ловит неверных | Останавливает верных |', '|---|---|---|');
+  for (const [k, label] of CHECKS) {
+    const caught = wrongs.filter((r) => catchesAlone({ intent: r.intent, cartHtml: r.cartHtml, order: r.order, paid: r.paid, mode: r.mode }, k)).length;
+    const [lo, hi] = wilson(caught, wrongs.length);
+    const fp = rights.filter((r) => catchesAlone({ intent: r.intent, cartHtml: r.cartHtml, order: r.order, paid: r.paid, mode: r.mode }, k)).length;
+    md.push(`| ${label} | ${caught}/${wrongs.length} [${pct(lo, 0)}-${pct(hi, 0)}] | ${fp}/${rights.length} |`);
+  }
+  md.push('');
   if (anatomy.size) {
     md.push('Неверные заказы до проверок - что было не так:', '', '| Вёрстка, вход | Проблемы (поле: число заказов) |', '|---|---|');
     for (const [k, m] of [...anatomy.entries()].sort()) md.push(`| ${k} | ${[...m.entries()].map(([p, n]) => `${p}: ${n}`).join(', ')} |`);

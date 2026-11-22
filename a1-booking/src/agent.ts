@@ -8,6 +8,7 @@ import { freeText, type Case } from './intent.ts';
 import type { Site } from './site/server.ts';
 
 export const MAX_STEPS = 25;
+const TREE_LIMIT = 6_000;
 export type InputMode = 'free' | 'schema';
 export interface ModelRef { provider: Provider; model: string }
 export interface LlmLike { chat(req: ChatRequest): Promise<ChatResult> }
@@ -36,13 +37,12 @@ const TOOLS: ToolDef[] = [
 
 export const SYSTEM = `You are a ticket booking assistant working in a web browser on a ticket site.
 Book exactly what the user asked for: the event, the date, the time, the number of tickets, seats in the requested rows, each ticket not above the price limit.
-Use snapshot to see the page and click to act. When the cart contains exactly the requested tickets, call pay. If it is impossible, call give_up.
-Do not click advertisements.`;
+Use snapshot to see the page and click to act. When the cart contains exactly the requested tickets, call pay. If it is impossible, call give_up.`;
 
 export function userMessage(c: Case, mode: InputMode): string {
   if (mode === 'free') return freeText(c.intent);
   const { eventTitle, date, time, qty, rowFrom, rowTo, maxPrice } = c.intent;
-  return `Booking order (JSON, all fields are binding):\n${JSON.stringify({ event: eventTitle, date, time, qty, rows: [rowFrom, rowTo], maxPricePerTicket: maxPrice })}`;
+  return `Booking order (JSON, all fields are binding; rowFrom..rowTo is an inclusive range of rows, any row in it will do):\n${JSON.stringify({ event: eventTitle, date, time, qty, rowFrom, rowTo, maxPricePerTicket: maxPrice })}`;
 }
 
 /**
@@ -63,7 +63,9 @@ export async function snapshotText(page: Page): Promise<string> {
       return `[ref=${i + 1}] ${el.tagName === 'A' && el.getAttribute('role') !== 'button' ? 'link' : 'button'} "${name}"${ctx ? ` - ${ctx}` : ''}`;
     });
   });
-  return `URL: ${new URL(page.url()).pathname}\n${tree}\n\nClickable elements:\n${items.join('\n')}`.slice(0, 16_000);
+  // Only the tree is shortened: the clickable list is what the agent acts on and must stay complete.
+  const shortTree = tree.length > TREE_LIMIT ? `${tree.slice(0, TREE_LIMIT)}\n... (tree shortened; every clickable element is listed below)` : tree;
+  return `URL: ${new URL(page.url()).pathname}\n${shortTree}\n\nClickable elements:\n${items.join('\n')}`;
 }
 
 async function doClick(page: Page, args: { ref?: number | string }): Promise<string> {
@@ -79,6 +81,8 @@ async function doClick(page: Page, args: { ref?: number | string }): Promise<str
 export async function runAgent(opts: { site: Site; browser: Browser; c: Case; mode: InputMode; sample: number; llm: LlmLike; model: ModelRef; runId: string }): Promise<AgentRun> {
   const { site, browser, c, mode, sample, llm, model, runId } = opts;
   const context = await browser.newContext();
+  // Payment is the pay tool only: the site's own pay button would bypass the checks ladder.
+  await context.route('**/pay?**', (route) => route.abort());
   const page = await context.newPage();
   const started = performance.now();
   const run: AgentRun = { caseId: c.id, mode, sample, paid: false, steps: 0, agentMs: 0, inputTokens: 0, outputTokens: 0, costUsd: 0, trace: [] };

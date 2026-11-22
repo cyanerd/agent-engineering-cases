@@ -21,7 +21,7 @@ export function intents(): Case[] {
   const { events, sessions } = catalog();
   const r = rng(77);
   const out: Case[] = [];
-  const zones: [number, number][] = [[1, 3], [4, 8], [9, 12], [5, 7], [2, 5]];
+  const zones: [number, number][] = [[1, 3], [4, 8], [9, 12], [5, 7], [2, 5], [6, 6]];
   while (out.length < 300) {
     const s = r.pick(sessions);
     const [rowFrom, rowTo] = r.pick(zones);
