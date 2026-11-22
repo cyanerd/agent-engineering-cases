@@ -21,6 +21,16 @@ importers:
         specifier: ^3.2.0
         version: 3.2.7(@types/node@24.19.2)(tsx@4.23.15)
 
+  a1-booking:
+    dependencies:
+      '@aec/llm':
+        specifier: workspace:*
+        version: link:../packages/llm
+    devDependencies:
+      playwright:
+        specifier: 1.65.1
+        version: 1.65.1
+
   a2-watchdog:
     devDependencies:
       '@playwright/test':
