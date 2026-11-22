@@ -63,6 +63,7 @@ export function createLlm(opts: LlmOptions = {}) {
       temperature: req.temperature,
       max_tokens: req.maxTokens,
       response_format: req.responseFormat,
+      reasoning_effort: req.reasoningEffort,
     });
   }
 

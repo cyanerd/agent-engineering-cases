@@ -66,7 +66,8 @@ export async function answerTasks(tasks: Task[], models: ModelSpec[], llm: { cha
       const base = { taskId: t.id, type: t.type, split: t.split, model: m.label ?? m.model, sample };
       try {
         const r = await llm.chat({
-          provider: m.provider, model: m.model, messages: [...(m.noThink ? [{ role: 'system' as const, content: '/no_think' }] : []), { role: 'user' as const, content: t.prompt }],
+          provider: m.provider, model: m.model, messages: [{ role: 'user' as const, content: t.prompt }],
+          ...(m.noThink ? { reasoningEffort: 'none' as const } : {}),
           temperature: sample === 0 ? 0 : 0.7, sample,
           ...(t.type === 'extract' ? { responseFormat: { type: 'json_object' as const } } : {}),
         });

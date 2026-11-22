@@ -52,6 +52,9 @@ describe('answerTasks', () => {
     const fast: ModelSpec = { key: 'fast', provider: 'ollama', model: 'stub-small', label: 'stub-small-nothink', noThink: true, samples: 1, concurrency: 1 };
     const rows = await answerTasks([tasks[0]!], [fast], l);
     expect(rows[0]!.model).toBe('stub-small-nothink');
-    expect(l.reqs[0]!.messages[0]).toEqual({ role: 'system', content: '/no_think' });
+    // The '/no_think' soft switch in a prompt is ignored by Ollama 0.40 (qwen3 still emits ~700 reasoning tokens);
+    // reasoning_effort 'none' turns the trace off.
+    expect(l.reqs[0]!.reasoningEffort).toBe('none');
+    expect(l.reqs[0]!.messages).toEqual([{ role: 'user', content: tasks[0]!.prompt }]);
   });
 });
