@@ -6,7 +6,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import type { AnswerRow } from './run.ts';
 import { agreement, allCheap, allExpensive, buildTable, byType, cascade, evaluate, learnTypeRule, type CascadeConfig, type Entry } from './router.ts';
-import { pairedBootstrap } from './stats.ts';
+import { pairedBootstrap, shadowPower } from './stats.ts';
 import { loadTasks, type TaskType } from './tasks/index.ts';
 
 const DEFAULT_CHEAP = 'qwen3:8b-nothink';
@@ -26,6 +26,7 @@ const tasks = loadTasks();
 const table = buildTable(tasks, rows, CHEAP, EXPENSIVE);
 const train = table.filter((e) => e.task.split === 'train');
 const test = table.filter((e) => e.task.split === 'test');
+const mean = (xs: number[]) => xs.reduce((a, x) => a + x, 0) / Math.max(1, xs.length);
 const pct = (x: number) => `${(x * 100).toFixed(1)}%`;
 const md: string[] = [];
 
@@ -79,13 +80,21 @@ if (chosen) {
   const confWrong = (es: Entry[]) => es.filter((e) => agreement(e) === 3 && !e.cheap[0]!.correct).length;
   md.push(`Предел каскада по согласию: в test ${confWrong(test)} из ${test.length} задач (${pct(confWrong(test) / test.length)}) дешёвая модель ответила одинаково неверно во всех трёх сэмплах - такие ошибки никакой порог согласия не поймает.`, '');
 
-  // 5. Shadow mode: how many shadow comparisons detect a DELTA degradation with 80% power (one-sided 5%).
+  // 5. Shadow mode, simulated on test pairs with the same decision rule as offline (two-sided 95%, margin DELTA).
   const d = chosen.te.correct.map((x, i) => Number(x) - Number(evaluate(allExpensive, test, 0).correct[i]));
-  const mean = d.reduce((s, x) => s + x, 0) / d.length;
-  const variance = d.reduce((s, x) => s + (x - mean) ** 2, 0) / (d.length - 1);
-  const n = Math.ceil(((1.645 + 0.842) ** 2 * Math.max(variance, 1e-6)) / DELTA ** 2);
-  md.push('## Теневой режим в проде', '',
-    `Доля запросов, обработанных роутером, параллельно уходит к дорогой модели; сравнение ответов (где есть автоматическая проверка) или их расхождение (где нет). При дисперсии парной разницы ${variance.toFixed(3)} (оценка по test) нужно **${n}** теневых сравнений, чтобы заметить падение на ${DELTA * 100} п.п. с мощностью 80% при одностороннем уровне 5%. При 10% тени это ${n * 10} запросов роутера.`, '');
+  // "No real difference": the same number of disagreements, split evenly between the two sides.
+  const disc = d.filter((x) => x !== 0).length;
+  const even = [...d.filter((x) => x === 0), ...Array.from({ length: disc }, (_, i) => (i % 2 ? 1 : -1))];
+  const NS = [130, 240, 500, 1000, 2000, 4000];
+  const obs = NS.map((n) => shadowPower(d, n, DELTA));
+  const zero = NS.map((n) => shadowPower(even, n, DELTA));
+  const need = NS.find((_, i) => obs[i]! >= 0.8);
+  md.push('## Теневой режим в проде (симуляция на test)', '',
+    `Доля запросов роутера параллельно уходит к дорогой модели, ответы сравниваются. Симуляция: n теневых сравнений вытягиваются из парных разниц test, решение - то же, что офлайн (нижняя граница 95% интервала выше −${DELTA * 100} п.п.). Вероятность доказать не-худшесть:`, '',
+    `| Сравнений в тени | ${NS.join(' | ')} |`, `|---|${NS.map(() => '---').join('|')}|`,
+    `| если роутер хуже, как на test (${(mean(d) * 100).toFixed(1)} п.п.) | ${obs.map((p) => pct(p)).join(' | ')} |`,
+    `| если разницы нет (расхождений столько же - ${disc}, поровну в обе стороны) | ${zero.map((p) => pct(p)).join(' | ')} |`, '',
+    need ? `С мощностью 80% при наблюдаемой разнице нужно около **${need}** сравнений; при 10% тени - ${need * 10} запросов роутера.` : 'Мощности 80% при наблюдаемой разнице не достигнуто даже на 4000 сравнений.', '');
 }
 
 // 6. Frontier: every cascade configuration, train vs test.

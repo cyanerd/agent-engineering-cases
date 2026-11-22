@@ -15,7 +15,7 @@ export interface ModelSpec {
   model: string;
   /** Name recorded in results; defaults to model. */
   label?: string;
-  /** Qwen3 soft switch: answer without the long reasoning phase (fast mode of a local model). */
+  /** Answer without the reasoning phase (fast mode of a local model): sent as reasoning_effort 'none'. */
   noThink?: boolean;
   samples: number;
   concurrency: number;

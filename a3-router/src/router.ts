@@ -9,7 +9,8 @@ export interface Entry {
   expensive: AnswerRow;
 }
 export type Route = 'cheap' | 'expensive';
-export type Policy = (e: Entry) => Route;
+/** A policy may also say which requests it sends to the expensive model without asking the cheap one at all. */
+export type Policy = ((e: Entry) => Route) & { direct?: (e: Entry) => boolean };
 
 /** Joins answers per task. Tasks where any needed answer errored are dropped, the same for every policy. */
 export function buildTable(tasks: Task[], rows: AnswerRow[], cheapModel: string, expensiveModel: string): Entry[] {
@@ -45,7 +46,7 @@ export function canonical(task: Task, output: string): string {
 export function validJson(e: Entry): boolean {
   if (e.task.type !== 'extract') return true;
   const o = parseJsonLoose(e.cheap[0]!.output ?? '');
-  return !!o && typeof o.customer === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(String(o.date)) && o.amount !== undefined && typeof o.currency === 'string' && o.items !== undefined;
+  return !!o && typeof o.customer === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(String(o.date)) && o.amount !== undefined && ['RUB', 'USD', 'EUR'].includes(String(o.currency)) && o.items !== undefined;
 }
 
 export function agreement(e: Entry): number {
@@ -55,19 +56,23 @@ export function agreement(e: Entry): number {
 }
 
 export const allCheap: Policy = () => 'cheap';
-export const allExpensive: Policy = () => 'expensive';
-export const byType = (rule: Record<TaskType, Route>): Policy => (e) => rule[e.task.type];
+export const allExpensive: Policy = Object.assign((): Route => 'expensive', { direct: () => true });
+export const byType = (rule: Record<TaskType, Route>): Policy => Object.assign((e: Entry) => rule[e.task.type], { direct: (e: Entry) => rule[e.task.type] === 'expensive' });
 
 export interface CascadeConfig {
   requireValidJson: boolean;
   minAgreement: 1 | 2 | 3;
   typesToExpensive?: TaskType[];
 }
-export const cascade = (c: CascadeConfig): Policy => (e) => {
-  if (c.typesToExpensive?.includes(e.task.type)) return 'expensive';
-  if (c.requireValidJson && !validJson(e)) return 'expensive';
-  return agreement(e) >= c.minAgreement ? 'cheap' : 'expensive';
-};
+export const cascade = (c: CascadeConfig): Policy =>
+  Object.assign(
+    (e: Entry): Route => {
+      if (c.typesToExpensive?.includes(e.task.type)) return 'expensive';
+      if (c.requireValidJson && !validJson(e)) return 'expensive';
+      return agreement(e) >= c.minAgreement ? 'cheap' : 'expensive';
+    },
+    { direct: (e: Entry) => !!c.typesToExpensive?.includes(e.task.type) },
+  );
 
 const acc = (xs: boolean[]) => xs.filter(Boolean).length / Math.max(1, xs.length);
 
@@ -89,13 +94,16 @@ export interface Outcome {
   p50LatencyMs: number;
 }
 
-/** Cheap answers are local (cost 0); a cascade waits for all cheap samples it compares, then maybe for the expensive call. */
+/**
+ * Cheap answers are local (cost 0); a cascade waits for all cheap samples it compares, then maybe for the expensive call.
+ * Requests the policy sends straight to the expensive model (by type) wait only for that call.
+ */
 export function evaluate(policy: Policy, table: Entry[], samplesUsed = 1): Outcome {
   const routes = table.map(policy);
   const correct = table.map((e, i) => (routes[i] === 'cheap' ? !!e.cheap[0]!.correct : !!e.expensive.correct));
   const cost = table.reduce((s, e, i) => s + (routes[i] === 'expensive' ? e.expensive.costUsd : 0), 0);
   const lat = table
-    .map((e, i) => (samplesUsed > 0 ? Math.max(...e.cheap.slice(0, samplesUsed).map((r) => r.latencyMs)) : 0) + (routes[i] === 'expensive' ? e.expensive.latencyMs : 0))
+    .map((e, i) => (samplesUsed > 0 && !policy.direct?.(e) ? Math.max(...e.cheap.slice(0, samplesUsed).map((r) => r.latencyMs)) : 0) + (routes[i] === 'expensive' ? e.expensive.latencyMs : 0))
     .sort((a, b) => a - b);
   return {
     correct,

@@ -62,3 +62,20 @@ describe('policies', () => {
     expect(Number.isFinite(evaluate(allExpensive, table, 0).p50LatencyMs)).toBe(true);
   });
 });
+
+describe('latency of requests routed by type', () => {
+  it('a request sent straight to the expensive model by its type does not wait for the cheap samples', () => {
+    const t = task('qa-9', 'qa');
+    const rs: AnswerRow[] = [0, 1, 2].map((s) => ({ ...row(t, CHEAP, s, '4', true), latencyMs: 9000 })).concat([{ ...row(t, BIG, 0, '4', true), latencyMs: 500 }]);
+    const tb = buildTable([t], rs, CHEAP, BIG);
+    expect(evaluate(cascade({ requireValidJson: false, minAgreement: 3, typesToExpensive: ['qa'] }), tb, 3).p50LatencyMs).toBe(500);
+    expect(evaluate(byType({ classify: 'cheap', extract: 'cheap', math: 'cheap', qa: 'expensive' }), tb).p50LatencyMs).toBe(500);
+    expect(evaluate(cascade({ requireValidJson: false, minAgreement: 3 }), tb, 3).p50LatencyMs).toBe(9000);
+  });
+  it('valid JSON also means the currency is one of the schema values', async () => {
+    const { validJson } = await import('../src/router.ts');
+    const t = task('extract-9', 'extract', 'test', ex);
+    const tb = buildTable([t], [row(t, CHEAP, 0, JSON.stringify({ ...ex, currency: '₽' }), false), row(t, BIG, 0, JSON.stringify(ex), true)], CHEAP, BIG);
+    expect(validJson(tb[0]!)).toBe(false);
+  });
+});
