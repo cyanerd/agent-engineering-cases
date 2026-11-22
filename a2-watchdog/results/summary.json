@@ -1,0 +1,375 @@
+{
+  "rows": [
+    {
+      "mechanism": "База: красный на любой сбой",
+      "label": "-",
+      "recall": 0.9950657894736842,
+      "recallByKind": {
+        "stable": "283/283",
+        "intermittent": "140/140",
+        "disguised": "98/98",
+        "degradation": "84/87"
+      },
+      "medianHours": 0,
+      "falsePerWeekMed": 28.5,
+      "falsePerWeekP10": 23.5,
+      "falsePerWeekP90": 33,
+      "alertsPerWeek": 42,
+      "extraRunsPerWeek": 0,
+      "testCost": 28.485,
+      "testCostP10": 23.5,
+      "testCostP90": 33.5,
+      "testCostNoRuns": 28.485
+    },
+    {
+      "mechanism": "1. Перепрогон + карантин",
+      "label": "k=1, без карантина",
+      "recall": 0.9259868421052632,
+      "recallByKind": {
+        "stable": "283/283",
+        "intermittent": "124/140",
+        "disguised": "98/98",
+        "degradation": "58/87"
+      },
+      "medianHours": 0,
+      "falsePerWeekMed": 4,
+      "falsePerWeekP10": 2.5,
+      "falsePerWeekP90": 6.5,
+      "alertsPerWeek": 15,
+      "extraRunsPerWeek": 42.25,
+      "testCost": 8.704500000000001,
+      "testCostP10": 4.6875,
+      "testCostP90": 13.85,
+      "testCostNoRuns": 6.6
+    },
+    {
+      "mechanism": "2. Статистика по окну (CUSUM)",
+      "label": "порог 2.5",
+      "recall": 0.9029605263157895,
+      "recallByKind": {
+        "stable": "278/283",
+        "intermittent": "125/140",
+        "disguised": "93/98",
+        "degradation": "53/87"
+      },
+      "medianHours": 8,
+      "falsePerWeekMed": 6,
+      "falsePerWeekP10": 4,
+      "falsePerWeekP90": 8.5,
+      "alertsPerWeek": 10,
+      "extraRunsPerWeek": 0,
+      "testCost": 9.07,
+      "testCostP10": 4.5,
+      "testCostP90": 14.5,
+      "testCostNoRuns": 9.07
+    },
+    {
+      "mechanism": "3. Отпечатки сбоев",
+      "label": "новая сигнатура = сигнал",
+      "recall": 0.7203947368421053,
+      "recallByKind": {
+        "stable": "283/283",
+        "intermittent": "137/140",
+        "disguised": "6/98",
+        "degradation": "12/87"
+      },
+      "medianHours": 0,
+      "falsePerWeekMed": 3.5,
+      "falsePerWeekP10": 2,
+      "falsePerWeekP90": 5,
+      "alertsPerWeek": 5.5,
+      "extraRunsPerWeek": 0,
+      "testCost": 11.875,
+      "testCostP10": 7,
+      "testCostP90": 18,
+      "testCostNoRuns": 11.875
+    },
+    {
+      "mechanism": "3 + 2. Отпечатки + статистика",
+      "label": "CUSUM порог 4",
+      "recall": 0.8980263157894737,
+      "recallByKind": {
+        "stable": "283/283",
+        "intermittent": "138/140",
+        "disguised": "87/98",
+        "degradation": "38/87"
+      },
+      "medianHours": 0,
+      "falsePerWeekMed": 4.5,
+      "falsePerWeekP10": 3,
+      "falsePerWeekP90": 6.5,
+      "alertsPerWeek": 10,
+      "extraRunsPerWeek": 0,
+      "testCost": 7.77,
+      "testCostP10": 3.5,
+      "testCostP90": 12,
+      "testCostNoRuns": 7.77
+    }
+  ],
+  "grid": [
+    {
+      "mechanism": "База: красный на любой сбой",
+      "label": "-",
+      "trainCost": 29.31
+    },
+    {
+      "mechanism": "1. Перепрогон + карантин",
+      "label": "k=1, без карантина",
+      "trainCost": 9.964500000000001
+    },
+    {
+      "mechanism": "1. Перепрогон + карантин",
+      "label": "k=1, карантин при ≥10% мигания за неделю",
+      "trainCost": 13.661499999999997
+    },
+    {
+      "mechanism": "1. Перепрогон + карантин",
+      "label": "k=1, карантин при ≥20% мигания за неделю",
+      "trainCost": 10.77425
+    },
+    {
+      "mechanism": "1. Перепрогон + карантин",
+      "label": "k=2, без карантина",
+      "trainCost": 10.272500000000003
+    },
+    {
+      "mechanism": "1. Перепрогон + карантин",
+      "label": "k=2, карантин при ≥10% мигания за неделю",
+      "trainCost": 15.270374999999996
+    },
+    {
+      "mechanism": "1. Перепрогон + карантин",
+      "label": "k=2, карантин при ≥20% мигания за неделю",
+      "trainCost": 12.102125000000001
+    },
+    {
+      "mechanism": "1. Перепрогон + карантин",
+      "label": "k=3, без карантина",
+      "trainCost": 12.65525
+    },
+    {
+      "mechanism": "1. Перепрогон + карантин",
+      "label": "k=3, карантин при ≥10% мигания за неделю",
+      "trainCost": 17.288499999999992
+    },
+    {
+      "mechanism": "1. Перепрогон + карантин",
+      "label": "k=3, карантин при ≥20% мигания за неделю",
+      "trainCost": 14.566
+    },
+    {
+      "mechanism": "2. Статистика по окну (CUSUM)",
+      "label": "порог 1.5",
+      "trainCost": 13.11
+    },
+    {
+      "mechanism": "2. Статистика по окну (CUSUM)",
+      "label": "порог 2",
+      "trainCost": 11.49
+    },
+    {
+      "mechanism": "2. Статистика по окну (CUSUM)",
+      "label": "порог 2.5",
+      "trainCost": 10.675
+    },
+    {
+      "mechanism": "2. Статистика по окну (CUSUM)",
+      "label": "порог 3",
+      "trainCost": 10.93
+    },
+    {
+      "mechanism": "2. Статистика по окну (CUSUM)",
+      "label": "порог 4",
+      "trainCost": 13.45
+    },
+    {
+      "mechanism": "2. Статистика по окну (CUSUM)",
+      "label": "порог 5",
+      "trainCost": 16.85
+    },
+    {
+      "mechanism": "2. Статистика по окну (CUSUM)",
+      "label": "порог 6",
+      "trainCost": 20.255
+    },
+    {
+      "mechanism": "3. Отпечатки сбоев",
+      "label": "новая сигнатура = сигнал",
+      "trainCost": 17.42
+    },
+    {
+      "mechanism": "3 + 2. Отпечатки + статистика",
+      "label": "CUSUM порог 2",
+      "trainCost": 15.83
+    },
+    {
+      "mechanism": "3 + 2. Отпечатки + статистика",
+      "label": "CUSUM порог 3",
+      "trainCost": 14.82
+    },
+    {
+      "mechanism": "3 + 2. Отпечатки + статистика",
+      "label": "CUSUM порог 4",
+      "trainCost": 14.66
+    },
+    {
+      "mechanism": "3 + 2. Отпечатки + статистика",
+      "label": "CUSUM порог 5",
+      "trainCost": 15.295
+    },
+    {
+      "mechanism": "3 + 2. Отпечатки + статистика",
+      "label": "CUSUM порог 6",
+      "trainCost": 15.66
+    }
+  ],
+  "sensitivity": [
+    {
+      "label": "базовый состав",
+      "costs": [
+        {
+          "mechanism": "1. Перепрогон + карантин",
+          "cost": 8.704500000000001
+        },
+        {
+          "mechanism": "2. Статистика по окну (CUSUM)",
+          "cost": 9.07
+        },
+        {
+          "mechanism": "3. Отпечатки сбоев",
+          "cost": 11.875
+        },
+        {
+          "mechanism": "3 + 2. Отпечатки + статистика",
+          "cost": 7.77
+        }
+      ]
+    },
+    {
+      "label": "без замаскированных",
+      "costs": [
+        {
+          "mechanism": "1. Перепрогон + карантин",
+          "cost": 8.524249999999997
+        },
+        {
+          "mechanism": "2. Статистика по окну (CUSUM)",
+          "cost": 8.505
+        },
+        {
+          "mechanism": "3. Отпечатки сбоев",
+          "cost": 7.45
+        },
+        {
+          "mechanism": "3 + 2. Отпечатки + статистика",
+          "cost": 7.16
+        }
+      ]
+    },
+    {
+      "label": "замаскированных вдвое больше",
+      "costs": [
+        {
+          "mechanism": "1. Перепрогон + карантин",
+          "cost": 8.820499999999997
+        },
+        {
+          "mechanism": "2. Статистика по окну (CUSUM)",
+          "cost": 10.07
+        },
+        {
+          "mechanism": "3. Отпечатки сбоев",
+          "cost": 16.82
+        },
+        {
+          "mechanism": "3 + 2. Отпечатки + статистика",
+          "cost": 8.935
+        }
+      ]
+    },
+    {
+      "label": "без деградаций",
+      "costs": [
+        {
+          "mechanism": "1. Перепрогон + карантин",
+          "cost": 7.3026249999999955
+        },
+        {
+          "mechanism": "2. Статистика по окну (CUSUM)",
+          "cost": 7.52
+        },
+        {
+          "mechanism": "3. Отпечатки сбоев",
+          "cost": 8.21
+        },
+        {
+          "mechanism": "3 + 2. Отпечатки + статистика",
+          "cost": 5.435
+        }
+      ]
+    },
+    {
+      "label": "деградаций вдвое больше",
+      "costs": [
+        {
+          "mechanism": "1. Перепрогон + карантин",
+          "cost": 10.155000000000003
+        },
+        {
+          "mechanism": "2. Статистика по окну (CUSUM)",
+          "cost": 11.235
+        },
+        {
+          "mechanism": "3. Отпечатки сбоев",
+          "cost": 16.135
+        },
+        {
+          "mechanism": "3 + 2. Отпечатки + статистика",
+          "cost": 10.845
+        }
+      ]
+    },
+    {
+      "label": "перемежающиеся падают в 30%",
+      "costs": [
+        {
+          "mechanism": "1. Перепрогон + карантин",
+          "cost": 11.49525
+        },
+        {
+          "mechanism": "2. Статистика по окну (CUSUM)",
+          "cost": 10.65
+        },
+        {
+          "mechanism": "3. Отпечатки сбоев",
+          "cost": 12.275
+        },
+        {
+          "mechanism": "3 + 2. Отпечатки + статистика",
+          "cost": 8.165
+        }
+      ]
+    },
+    {
+      "label": "перемежающиеся падают в 70%",
+      "costs": [
+        {
+          "mechanism": "1. Перепрогон + карантин",
+          "cost": 8.020625000000003
+        },
+        {
+          "mechanism": "2. Статистика по окну (CUSUM)",
+          "cost": 8.64
+        },
+        {
+          "mechanism": "3. Отпечатки сбоев",
+          "cost": 11.875
+        },
+        {
+          "mechanism": "3 + 2. Отпечатки + статистика",
+          "cost": 7.85
+        }
+      ]
+    }
+  ]
+}
